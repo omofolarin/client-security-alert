@@ -1,11 +1,16 @@
 import * as yup from "yup";
 
 import { Box, Button, Link, Paper, Stack, Typography } from "@mui/material";
-import { useResendOtpMutation, useSubmitOtpMutation } from "../../api";
+import {
+  parseErrorMessage,
+  useResendOtpMutation,
+  useSubmitOtpMutation,
+} from "../../api";
 
+import { LoadingButton } from "@mui/lab";
 import OtpInput from "react-otp-input";
 import React from "react";
-import capitalize from "lodash.capitalize";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { useLocalStorage } from "../../hooks";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +25,7 @@ const formSchema = yup.object().shape({
   otp: yup.string().required(),
 });
 
+const OTP_WAIT_TIME = 40;
 export const Otp = () => {
   const {
     register,
@@ -34,16 +40,57 @@ export const Otp = () => {
   const navigate = useNavigate();
   const otpStyles = useOtpStyle({ size: "medium" });
   const [submitOtp, result] = useSubmitOtpMutation();
-  const [resendOtp, resetOtpResult] = useResendOtpMutation();
+  const [resendOtp, resendOtpResult] = useResendOtpMutation();
   const [sessionEmail] = useLocalStorage<string | null>("session-email", null);
+  const [otpTimer, setOtpTimer] = React.useState(0);
+
   const otpInput = register("otp");
 
   React.useEffect(() => {
-    console.log({ result: result.isSuccess });
+    resendOtp({ email: sessionEmail });
+  }, [sessionEmail]);
+
+  React.useEffect(() => {
     if (result.isSuccess) {
-      navigate('/home')
+      const data = result.data;
+      navigate(`/home`);
+    } else if (result.isError) {
+      console.log("caught error", result.error);
+      toast.error(parseErrorMessage(result), {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
-  }, [result.isSuccess]);
+  }, [result.isSuccess, result?.isError, result?.data]);
+
+  React.useEffect(() => {
+    if (resendOtpResult.isSuccess) {
+      setOtpTimer(OTP_WAIT_TIME);
+      toast.success("Sent an OTP to your email!", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } else if (resendOtpResult.isError) {
+      console.log("caught error", resendOtpResult.error);
+      toast.error(`Error sending OTP: ${parseErrorMessage(result)}`, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [
+    resendOtpResult.isSuccess,
+    resendOtpResult?.isError,
+    resendOtpResult?.data,
+  ]);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (otpTimer <= OTP_WAIT_TIME && otpTimer > 0) {
+        setOtpTimer(otpTimer - 1);
+      }
+    }, 1000);
+
+    return () => {
+      clearTimeout(interval);
+    };
+  }, [otpTimer]);
 
   const onSubmit = async (values: OtpForm) => {
     if (sessionEmail) {
@@ -108,12 +155,30 @@ export const Otp = () => {
               Enter OTP
             </Typography>
             <Box>
-              <Link
-                href="/signup"
-                sx={{ textDecoration: "unset", fontSize: "14px" }}
-              >
-                Resend otp
-              </Link>
+              {otpTimer === 0 && (
+                <Link
+                  onClick={async () => {
+                    if (!sessionEmail) {
+                      toast.info("Can fetch your email address, please login");
+                      return;
+                    }
+                    await onResendOtp({
+                      email: sessionEmail,
+                    });
+                  }}
+                  sx={{
+                    textDecoration: "unset",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Resend otp
+                </Link>
+              )}
+
+              {otpTimer > 0 && (
+                <Typography>Receiving otp via email in {otpTimer}</Typography>
+              )}
             </Box>
           </Box>
 
@@ -144,7 +209,8 @@ export const Otp = () => {
                   An otp has been sent to your email address
                 </Typography>
                 <Box sx={{ width: "100%", marginY: 5 }}>
-                  <Button
+                  <LoadingButton
+                    loading={result.isLoading}
                     disableElevation
                     variant="contained"
                     type="submit"
@@ -153,7 +219,7 @@ export const Otp = () => {
                     fullWidth
                   >
                     Submit
-                  </Button>
+                  </LoadingButton>
                 </Box>
               </Stack>
             </form>

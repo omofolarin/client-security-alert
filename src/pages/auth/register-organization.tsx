@@ -1,15 +1,30 @@
 import * as yup from "yup";
 
-import { Box, Button, Link, Paper, Stack, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Link,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import {
+  parseErrorMessage,
+  useFetchIndustriesQuery,
+  useFetchStatesQuery,
+  useOrganizationSignUpMutation,
+} from "../../api";
 
+import { LoadingButton } from "@mui/lab";
 import React from "react";
 import { TextInput } from "../../components";
 import capitalize from "lodash.capitalize";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { useLocalStorage } from "../../hooks";
 import { useNavigate } from "react-router-dom";
-import { useOrganizationSignUpMutation } from "../../api";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 const formSchema = yup.object().shape({
@@ -35,6 +50,7 @@ interface OrganizationForm {
 export const RegisterOrganization = () => {
   const {
     register,
+    setValue,
     formState: { errors, isValid },
     handleSubmit,
   } = useForm<OrganizationForm>({
@@ -55,13 +71,41 @@ export const RegisterOrganization = () => {
     "session-email",
     null
   );
+  const { data: fetchedIndustries, ...fetchIndustriesState } =
+    useFetchIndustriesQuery("industries");
+
+  const { data: fetchedStates, ...fetchStatesResult } =
+    useFetchStatesQuery("states");
+
+  const [state, setState] = React.useState([]);
+  const [industries, setIndustries] = React.useState([]);
+
+  React.useEffect(() => {
+    if (fetchIndustriesState.isSuccess) {
+      const data = fetchedIndustries.data.map((d) => d.name);
+      console.log(data);
+      setIndustries(data);
+    }
+  }, [fetchIndustriesState.isSuccess]);
+
+  React.useEffect(() => {
+    if (fetchStatesResult.isSuccess) {
+      const data = fetchedStates.data.map((s) => s.state);
+      console.log(data);
+      setState(data);
+    }
+  }, [fetchStatesResult.isSuccess]);
 
   React.useEffect(() => {
     if (result.isSuccess) {
       const data = result.data;
       navigate("/otp");
+    } else if (result.isError) {
+      toast.error(parseErrorMessage(result), {
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
     }
-  }, [result.isSuccess, result?.data]);
+  }, [result.isSuccess, result.isError, result?.data]);
 
   const onSubmit = async (values: OrganizationForm) => {
     setSessionEmail(values.email);
@@ -130,6 +174,7 @@ export const RegisterOrganization = () => {
                   <Box style={{ width: "100%" }}>
                     <TextInput
                       label="First Name"
+                      id="firstName"
                       {...firstName}
                       error={Boolean(errors["first_name"])}
                       helpText={capitalize(errors["first_name"]?.message)}
@@ -139,6 +184,7 @@ export const RegisterOrganization = () => {
                   <Box style={{ width: "100%" }}>
                     <TextInput
                       label="Last Name"
+                      id="lastName"
                       {...lastName}
                       error={Boolean(errors["last_name"])}
                       helpText={capitalize(errors["last_name"]?.message)}
@@ -147,13 +193,19 @@ export const RegisterOrganization = () => {
                 </Stack>
                 <TextInput
                   label="Company name"
+                  id="companyName"
                   {...companyName}
                   error={Boolean(errors["company_name"])}
                   helpText={capitalize(errors["company_name"]?.message)}
                 />
-                <TextInput label="Company Email Address" {...emailInput} />
+                <TextInput
+                  id="companyEmail"
+                  label="Company Email Address"
+                  {...emailInput}
+                />
                 <TextInput
                   label="Password"
+                  id="password"
                   type={hidePassword ? "password" : "text"}
                   endAdornment={
                     <Box
@@ -175,17 +227,63 @@ export const RegisterOrganization = () => {
                   error={Boolean(errors["password"])}
                   helpText={capitalize(errors["password"]?.message)}
                 />
-                <TextInput
-                  label="Industry"
-                  {...industryInput}
-                  error={Boolean(errors["industry"])}
-                  helpText={capitalize(errors["industry"]?.message)}
+
+                <Autocomplete
+                  disablePortal
+                  id="industries"
+                  onChange={(e, newValue) => {
+                    if (newValue) {
+                      setValue("industry", newValue?.value, {
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
+                  options={industries.map((d) => ({
+                    label: capitalize(d.toLowerCase()),
+                    value: d,
+                  }))}
+                  renderInput={(params) => {
+                    // const { InputLabelProps, InputProps, ...rest } = params;
+                    return (
+                      <TextInput
+                        {...params}
+                        {...industryInput}
+                        label="Industry"
+                        error={Boolean(errors["industry"])}
+                        helpText={capitalize(errors["industry"]?.message)}
+                        onChange={(e) => industryInput.onChange(e)}
+                      />
+                    );
+                  }}
                 />
-                <TextInput
-                  label="State"
-                  {...stateInput}
-                  error={Boolean(errors["state"])}
-                  helpText={capitalize(errors["state"]?.message)}
+
+                <Autocomplete
+                  disablePortal
+                  id="state"
+                  onChange={(e, newValue) => {
+                    if (newValue) {
+                      setValue("state", newValue?.value, {
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
+                  options={state.map((d) => ({
+                    label: capitalize(d.toLowerCase()),
+                    value: d,
+                  }))}
+                  renderInput={(params) => {
+                    // const { InputLabelProps, InputProps, ...rest } = params;
+                    return (
+                      <TextInput
+                        {...params}
+                        {...stateInput}
+                        label="State"
+                        error={Boolean(errors["state"])}
+                        helpText={capitalize(errors["state"]?.message)}
+                        onChange={(e) => industryInput.onChange(e)}
+                      />
+                    );
+                  }}
                 />
 
                 <Box
@@ -212,16 +310,17 @@ export const RegisterOrganization = () => {
                 </Box>
 
                 <Box sx={{ width: "100%", marginY: 5 }}>
-                  <Button
+                  <LoadingButton
                     disableElevation
                     type="submit"
                     variant="contained"
+                    loading={result.isLoading}
                     disabled={!isValid}
                     sx={{ textTransform: "capitalize" }}
                     fullWidth
                   >
                     Create Account
-                  </Button>
+                  </LoadingButton>
                 </Box>
               </Stack>
             </form>

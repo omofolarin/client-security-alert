@@ -3,13 +3,14 @@ import * as yup from "yup";
 import { Box, Button, Link, Paper, Stack, Typography } from "@mui/material";
 import { CheckboxInput, TextInput } from "../../components";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { parseErrorMessage, useLoginMutation } from "../../api";
 
 import { AuthWrapper } from "../../hooks";
 import { LoadingButton } from "@mui/lab";
 import React from "react";
 import capitalize from "lodash.capitalize";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import { useLoginMutation } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -45,8 +46,18 @@ export const Login = () => {
   React.useEffect(() => {
     if (result.isSuccess) {
       const data = result.data;
+      navigate(`/home`);
+    } else if (result.isError) {
+      console.log("caught error", result.error);
+      toast.error(parseErrorMessage(result), {
+        position: toast.POSITION.TOP_CENTER,
+      });
+
+      if (parseErrorMessage(result).includes("not verified")) {
+        navigate("/otp");
+      }
     }
-  }, [result.isSuccess, result?.data]);
+  }, [result.isSuccess, result?.isError, result?.data]);
 
   const onSubmit = async (values: LoginForm) => {
     await onLogin(values);
@@ -180,6 +191,7 @@ export const Login = () => {
                     <LoadingButton
                       type="submit"
                       disableElevation
+                      loading={result.isLoading}
                       variant="contained"
                       sx={{ textTransform: "capitalize" }}
                       disabled={!isValid}

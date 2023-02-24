@@ -4,6 +4,8 @@ import {
   FormLabel,
   InputBase,
   InputBaseProps,
+  InputLabelProps,
+  InputProps,
   colors,
 } from "@mui/material";
 
@@ -111,6 +113,8 @@ interface TextFieldProps extends Omit<InputBaseProps, "size"> {
   id?: string;
   name?: string;
   helpText?: string;
+  InputProps?: InputProps;
+  InputLabelProps?: InputLabelProps;
 }
 
 export const TextInput = React.forwardRef((props: TextFieldProps, ref) => {
@@ -123,6 +127,8 @@ export const TextInput = React.forwardRef((props: TextFieldProps, ref) => {
     labelClassName,
     style,
     helpText,
+    InputProps,
+    InputLabelProps,
     ...inputBaseProps
   } = props;
   const { classes, cx } = useInputStyle({
@@ -147,6 +153,7 @@ export const TextInput = React.forwardRef((props: TextFieldProps, ref) => {
             filled: Boolean(inputBaseProps.value),
           }}
           className={cx(classes.label, labelClassName)}
+          {...InputLabelProps}
         >
           {label}
         </FormLabel>
@@ -161,6 +168,7 @@ export const TextInput = React.forwardRef((props: TextFieldProps, ref) => {
           focused: classes.inputFocused,
         }}
         {...inputBaseProps}
+        {...InputProps}
       />
 
       <FormHelperText sx={{ marginLeft: 0.25 }} error={inputBaseProps.error}>

@@ -2,6 +2,7 @@ import {
   Dashboard,
   ForgotPassword,
   Incidents,
+  Kyc,
   Login,
   Otp,
   Packages,
@@ -28,6 +29,10 @@ export const router = createBrowserRouter(
     {
       path: "/signup",
       element: <Register />,
+    },
+    {
+      path: "/kyc",
+      element: <Kyc />,
     },
     {
       path: "/signup/user",

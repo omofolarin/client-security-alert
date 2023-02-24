@@ -1,28 +1,16 @@
 import * as yup from "yup";
 
-import {
-  Box,
-  Button,
-  Container,
-  Link,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { CheckboxInput, TextInput } from "../../components";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
-import {
-  Visibility,
-  VisibilityOffOutlined,
-  VisibilityOutlined,
-} from "@mui/icons-material";
+import { Box, Link, Paper, Stack, Typography } from "@mui/material";
+import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { parseErrorMessage, useUserSignUpMutation } from "../../api";
 
+import { LoadingButton } from "@mui/lab";
 import React from "react";
-import capitalize from "lodash.capitalize";
+import { TextInput } from "../../components";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { useLocalStorage } from "../../hooks";
-import { useUserSignUpMutation } from "../../api";
+import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 const formSchema = yup.object().shape({
@@ -68,8 +56,12 @@ export const RegisterUser = () => {
     if (result.isSuccess) {
       const data = result.data;
       navigate(`/otp`);
+    } else if (result.isError) {
+      toast.error(parseErrorMessage(result), {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
-  }, [result.isSuccess, result?.data]);
+  }, [result.isSuccess, result?.isError, result?.data]);
 
   const onSubmit = async (values: OrganizationForm) => {
     setSessionEmail(values.email);
@@ -136,15 +128,20 @@ export const RegisterUser = () => {
               <Stack spacing={2.5}>
                 <Stack direction="row" spacing={2}>
                   <Box style={{ width: "100%" }}>
-                    <TextInput label="First Name" {...firstName} />
+                    <TextInput
+                      id="firstName"
+                      label="First Name"
+                      {...firstName}
+                    />
                   </Box>
 
                   <Box style={{ width: "100%" }}>
-                    <TextInput label="Last Name" {...lastName} />
+                    <TextInput id="lastName" label="Last Name" {...lastName} />
                   </Box>
                 </Stack>
-                <TextInput label="Email Address" {...emailInput} />
+                <TextInput id="email" label="Email Address" {...emailInput} />
                 <TextInput
+                  id="password"
                   label="Password"
                   type={hidePassword ? "password" : "text"}
                   endAdornment={
@@ -190,16 +187,17 @@ export const RegisterUser = () => {
                 </Box>
 
                 <Box sx={{ width: "100%", marginY: 5 }}>
-                  <Button
+                  <LoadingButton
                     disableElevation
                     type="submit"
+                    loading={result.isLoading}
                     variant="contained"
                     disabled={!isValid}
                     sx={{ textTransform: "capitalize" }}
                     fullWidth
                   >
                     Create Account
-                  </Button>
+                  </LoadingButton>
                 </Box>
               </Stack>
             </form>
