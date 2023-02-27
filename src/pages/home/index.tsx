@@ -3,6 +3,7 @@ export * from "./incidents";
 export * from "./packages";
 export * from "./roles";
 export * from "./tickets";
+export * from "./create-incident";
 
 import { Box, Card, Stack, Typography, useTheme } from "@mui/material";
 

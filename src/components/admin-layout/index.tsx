@@ -9,6 +9,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   Toolbar,
   Typography,
@@ -27,8 +29,8 @@ import {
   SettingsOutlined,
   SupportOutlined,
 } from "@mui/icons-material";
+import { AuthWrapper, useAuth, useLocalStorage } from "../../hooks";
 
-import { AuthWrapper } from "../../hooks";
 import { Box } from "@mui/system";
 import { BoxTypeMap } from "@mui/system";
 import React from "react";
@@ -251,66 +253,110 @@ export const MainHeader = (props: MainHeaderProps) => {
   const theme = useTheme();
   const isHandHeld = useMediaQuery(theme.breakpoints.down("sm"));
   const history = window.history;
+  const { value: user, removeValue: removeUser } = useLocalStorage(
+    "auth_user",
+    null
+  );
+  const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(
+    null
+  );
+  const { logOut } = useAuth();
+  const menuOpen = Boolean(menuAnchorEl);
 
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  console.log(user);
   return (
-    <div style={{ width: "100%" }}>
-      <Toolbar variant="dense">
-        <FlexBox alignItems={"center"} width="100%">
-          <Box>
-            <IconButton onClick={props.onToggleSidebar}>
-              <MenuOutlined />
-            </IconButton>
-          </Box>
+    <>
+      <div style={{ width: "100%" }}>
+        <Toolbar variant="dense">
+          <FlexBox alignItems={"center"} width="100%">
+            <Box>
+              <IconButton onClick={props.onToggleSidebar}>
+                <MenuOutlined />
+              </IconButton>
+            </Box>
 
-          <Box width="300px" sx={{ marginLeft: "16px", marginY: 1 }}>
-            <TextInput
-              startAdornment={
-                <Box sx={{ paddingRight: "8px", paddingTop: "4px" }}>
-                  <Search fontSize="small" color="action" />
+            <Box width="300px" sx={{ marginLeft: "16px", marginY: 1 }}>
+              <TextInput
+                startAdornment={
+                  <Box sx={{ paddingRight: "8px", paddingTop: "4px" }}>
+                    <Search fontSize="small" color="action" />
+                  </Box>
+                }
+              />
+            </Box>
+          </FlexBox>
+
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+            <Box>
+              <IconButton sx={{ bgcolor: "#eee", borderRadius: 2 }}>
+                <NotificationsOutlined fontSize="small" />
+              </IconButton>
+            </Box>
+
+            <Box sx={{ cursor: "pointer" }} onClick={handleMenuClick}>
+              <Box
+                sx={{
+                  display: "flex",
+                  minWidth: "7em",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingX: 0.8,
+                  paddingY: 0.5,
+                  borderRadius: 2,
+                  "&:hover": {
+                    bgcolor: "#eee",
+                  },
+                }}
+              >
+                <Avatar sx={{ width: "1.5em", height: "1.5em" }} />
+                <Box sx={{ cursor: "pointer" }}>
+                  <Typography
+                    fontSize="0.8rem"
+                    fontWeight={600}
+                    sx={{ color: "GrayText", paddingLeft: 1 }}
+                  >
+                    {user?.first_name} {user?.last_name}
+                  </Typography>
                 </Box>
-              }
-            />
-          </Box>
-        </FlexBox>
-
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-          <Box>
-            <IconButton sx={{ bgcolor: "#eee", borderRadius: 2 }}>
-              <NotificationsOutlined fontSize="small" />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ cursor: "pointer" }}>
-            <Box
-              sx={{
-                display: "flex",
-                minWidth: "7em",
-                alignItems: "center",
-                justifyContent: "space-between",
-                paddingX: 0.8,
-                paddingY: 0.5,
-                borderRadius: 2,
-                "&:hover": {
-                  bgcolor: "#eee",
-                },
-              }}
-            >
-              <Avatar sx={{ width: "1.5em", height: "1.5em" }} />
-              <Box sx={{ cursor: "pointer" }}>
-                <Typography
-                  fontSize="0.8rem"
-                  fontWeight={600}
-                  sx={{ color: "GrayText" }}
-                >
-                  John Doe
-                </Typography>
               </Box>
             </Box>
-          </Box>
-        </Stack>
-      </Toolbar>
-      <Divider />
-    </div>
+          </Stack>
+        </Toolbar>
+        <Divider />
+      </div>
+
+      <Menu
+        id="basic-menu"
+        anchorEl={menuAnchorEl}
+        open={menuOpen}
+        onClose={handleMenuClose}
+        MenuListProps={{
+          "aria-labelledby": "basic-button",
+        }}
+        // componentsProps={{ root: { style: { width: "200px" } } }}
+        sx={{ width: "200px" }}
+      >
+        {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
+        <MenuItem onClick={handleClose}>My account</MenuItem> */}
+        <MenuItem
+          onClick={() => {
+            logOut();
+            handleMenuClose();
+            window.location.reload();
+          }}
+        >
+          Logout
+        </MenuItem>
+      </Menu>
+    </>
   );
 };
 

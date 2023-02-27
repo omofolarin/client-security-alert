@@ -1,5 +1,14 @@
 import { useState } from "react";
 
+function isJson(str: string) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
 // Hook
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -10,7 +19,11 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       // Get from local storage by key
       const item = window.localStorage.getItem(key);
       // Parse stored json or if none return initialValue
-      return item ? JSON.parse(item) : initialValue;
+      if (item) {
+        return isJson(item) ? JSON.parse(item) : item;
+      } else {
+        return initialValue;
+      }
     } catch (error) {
       // If error also return initialValue
       console.log(error);
@@ -27,12 +40,26 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       setStoredValue(valueToStore);
       // Save to local storage
       if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        let value =
+          typeof valueToStore !== "string" && valueToStore
+            ? JSON.stringify(valueToStore)
+            : valueToStore;
+        window.localStorage.setItem(key, value as any);
       }
     } catch (error) {
       // A more advanced implementation would handle the error case
       console.log(error);
     }
   };
-  return [storedValue, setValue] as const;
+
+  const removeValue = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(key);
+    }
+  };
+  return {
+    setValue,
+    removeValue,
+    value: storedValue,
+  };
 }

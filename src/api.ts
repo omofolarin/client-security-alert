@@ -9,6 +9,7 @@ export const customApi = createApi({
     baseUrl: "http://174.138.9.133/",
     prepareHeaders: async (headers, { getState }) => {
       const token = localStorage.getItem("user_token");
+      console.log({ token });
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -31,9 +32,23 @@ export const customApi = createApi({
     }),
 
     fetchLgas: build.query<{}, LoginReqBody>({
-      query: () => ({
-        url: `/get-lgas/`,
+      query: (state) => ({
+        url: `/get-lgas/?state=${state}`,
 
+        method: "GET",
+      }),
+    }),
+
+    fetchIncidentTypes: build.query<{}, LoginReqBody>({
+      query: () => ({
+        url: `/get-incident-type/`,
+        method: "GET",
+      }),
+    }),
+
+    fetchIncidentNature: build.query<{}, LoginReqBody>({
+      query: () => ({
+        url: `/get-incident-nature/`,
         method: "GET",
       }),
     }),
@@ -44,6 +59,8 @@ export const {
   useFetchIndustriesQuery,
   useFetchStatesQuery,
   useFetchLgasQuery,
+  useFetchIncidentTypesQuery,
+  useFetchIncidentNatureQuery,
 } = customApi;
 
 export const appApi = createApi({
@@ -52,6 +69,7 @@ export const appApi = createApi({
     baseUrl: "http://174.138.9.133/api/v1/",
     prepareHeaders: async (headers, { getState }) => {
       const token = localStorage.getItem("user_token");
+      console.log({ token });
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -111,7 +129,7 @@ export const appApi = createApi({
     submitKyc: build.mutation<{}, LoginReqBody>({
       query: (body) => ({
         url: `/profile/user/kyc-update/`,
-        method: "POST",
+        method: "PUT",
         contentType: "application/x-www-form-urlencoded",
         body,
       }),
@@ -138,9 +156,21 @@ export const {
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {
-  return (
-    result.error?.data?.message ??
-    result.error?.status ??
-    "An error occurred, please try again."
-  );
+  if (
+    result.error?.data?.message &&
+    typeof result.error?.data?.message === "string"
+  ) {
+    return result.error?.data?.message;
+  } else if (
+    result.error?.data?.code &&
+    typeof result.error?.data?.code === "string" &&
+    result.error?.data?.detail &&
+    typeof result.error?.data?.detail === "string"
+  ) {
+    return result.error?.data?.detail;
+  } else if (result.error?.status && typeof result.error?.status === "string") {
+    return result.error?.status;
+  }
+
+  return "An error occurred, please try again.";
 };

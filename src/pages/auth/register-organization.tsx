@@ -67,7 +67,7 @@ export const RegisterOrganization = () => {
   const industryInput = register("industry");
   const stateInput = register("state");
   const companyName = register("company_name");
-  const [, setSessionEmail] = useLocalStorage<string | null>(
+  const { setValue: setSessionEmail } = useLocalStorage<string | null>(
     "session-email",
     null
   );
@@ -77,24 +77,32 @@ export const RegisterOrganization = () => {
   const { data: fetchedStates, ...fetchStatesResult } =
     useFetchStatesQuery("states");
 
-  const [state, setState] = React.useState([]);
+  const [states, setStates] = React.useState([]);
   const [industries, setIndustries] = React.useState([]);
 
   React.useEffect(() => {
     if (fetchIndustriesState.isSuccess) {
-      const data = fetchedIndustries.data.map((d) => d.name);
+      const data = (fetchedIndustries?.data ?? [])?.map((d) => d.name);
       console.log(data);
       setIndustries(data);
+    } else if (fetchIndustriesState.isError) {
+      toast.error("Could not load industries. Please try again.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
-  }, [fetchIndustriesState.isSuccess]);
+  }, [fetchIndustriesState.isSuccess, fetchIndustriesState.isError]);
 
   React.useEffect(() => {
     if (fetchStatesResult.isSuccess) {
-      const data = fetchedStates.data.map((s) => s.state);
+      const data = (fetchedStates?.data ?? [])?.map((s) => s.state);
       console.log(data);
-      setState(data);
+      setStates(data);
+    } else if (fetchStatesResult.isError) {
+      toast.error("Could not load states. Please try again.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
-  }, [fetchStatesResult.isSuccess]);
+  }, [fetchStatesResult.isSuccess, fetchStatesResult.isError]);
 
   React.useEffect(() => {
     if (result.isSuccess) {
@@ -267,7 +275,7 @@ export const RegisterOrganization = () => {
                       });
                     }
                   }}
-                  options={state.map((d) => ({
+                  options={states.map((d) => ({
                     label: capitalize(d.toLowerCase()),
                     value: d,
                   }))}

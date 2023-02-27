@@ -1,16 +1,17 @@
 import * as yup from "yup";
 
-import { Box, Button, Link, Paper, Stack, Typography } from "@mui/material";
+import { AuthWrapper, useAuth } from "../../hooks";
+import { Box, Link, Paper, Stack, Typography } from "@mui/material";
 import { CheckboxInput, TextInput } from "../../components";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { parseErrorMessage, useLoginMutation } from "../../api";
 
-import { AuthWrapper } from "../../hooks";
 import { LoadingButton } from "@mui/lab";
 import React from "react";
 import capitalize from "lodash.capitalize";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
+import { useLocalStorage } from "../../hooks";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -37,15 +38,21 @@ export const Login = () => {
 
   const navigate = useNavigate();
   const [onLogin, result] = useLoginMutation();
-
+  const { setValue: setSessionEmail } = useLocalStorage<string | null>(
+    "session-email",
+    null
+  );
+  const { authChecked, authState, onLogin: onLoginState } = useAuth();
   const emailInput = register("email");
   const passwordInput = register("password");
 
   console.log({ isValid, errors });
 
   React.useEffect(() => {
+    console.log("isSuccess", result.isSuccess);
     if (result.isSuccess) {
-      const data = result.data;
+      const data = result.data.data;
+      onLoginState(data.access_token, data);
       navigate(`/home`);
     } else if (result.isError) {
       console.log("caught error", result.error);
@@ -53,13 +60,14 @@ export const Login = () => {
         position: toast.POSITION.TOP_CENTER,
       });
 
-      if (parseErrorMessage(result).includes("not verified")) {
+      if (parseErrorMessage(result)?.includes("not verified")) {
         navigate("/otp");
       }
     }
   }, [result.isSuccess, result?.isError, result?.data]);
 
   const onSubmit = async (values: LoginForm) => {
+    setSessionEmail(values.email);
     await onLogin(values);
   };
 
@@ -126,6 +134,7 @@ export const Login = () => {
               <Box sx={{ marginY: 4 }}>
                 <Stack spacing={2.5}>
                   <TextInput
+                    id="email"
                     label="Email Address"
                     {...emailInput}
                     type="email"
@@ -134,6 +143,7 @@ export const Login = () => {
                   />
                   <TextInput
                     label="Password"
+                    id="password"
                     type={hidePassword ? "password" : "text"}
                     {...passwordInput}
                     endAdornment={

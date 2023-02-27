@@ -41,14 +41,18 @@ export const Otp = () => {
   const otpStyles = useOtpStyle({ size: "medium" });
   const [submitOtp, result] = useSubmitOtpMutation();
   const [resendOtp, resendOtpResult] = useResendOtpMutation();
-  const [sessionEmail] = useLocalStorage<string | null>("session-email", null);
+  const { value: sessionEmail } = useLocalStorage<string | null>(
+    "session-email",
+    null
+  );
   const [otpTimer, setOtpTimer] = React.useState(0);
 
   const otpInput = register("otp");
+  console.log({ sessionEmail });
 
   React.useEffect(() => {
     resendOtp({ email: sessionEmail });
-  }, [sessionEmail]);
+  }, []);
 
   React.useEffect(() => {
     if (result.isSuccess) {
@@ -96,7 +100,7 @@ export const Otp = () => {
     if (sessionEmail) {
       await submitOtp({
         email: sessionEmail,
-        code: values.otp,
+        code: parseInt(values.otp, 10),
       });
     }
   };

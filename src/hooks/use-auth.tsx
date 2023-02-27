@@ -8,12 +8,29 @@ import { useLocalStorage } from "./use-localstorage";
 export const useAuth = () => {
   const authState = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const [token, setToken] = useLocalStorage<string | null>("user_token", null);
-  const [authUser, setAuthUser] = useLocalStorage<Record<
-    string,
-    unknown
-  > | null>("auth_user", null);
-  const [authChecked, setAuthChecked] = React.useState(null);
+  const {
+    value: token,
+    setValue: setToken,
+    removeValue: removeToken,
+  } = useLocalStorage<string | null>("user_token", null);
+  const {
+    value: authUser,
+    setValue: setAuthUser,
+    removeValue: removeAuthUser,
+  } = useLocalStorage<Record<string, unknown> | null>("auth_user", null);
+  const [authChecked, setAuthChecked] = React.useState<boolean | null>(false);
+
+  React.useEffect(() => {
+    (async () => {
+      if (authState.isAuth === false && authChecked === false) {
+        if (authUser && token) {
+          dispatch(loginUser(authUser));
+        }
+
+        setAuthChecked(true);
+      }
+    })();
+  }, [authChecked, dispatch, token, authUser, authState.isAuth]);
 
   const onLogin = async (token: string, user: Record<string, unknown>) => {
     if (token) {
@@ -27,8 +44,8 @@ export const useAuth = () => {
   };
 
   const logOut = async () => {
-    setToken(null);
-    setAuthUser(null);
+    removeToken();
+    removeAuthUser();
     dispatch(logout());
   };
 
@@ -37,29 +54,26 @@ export const useAuth = () => {
     onLogin,
     logOut,
     authChecked,
+    setAuthChecked,
   };
 };
 
 export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   let location = useLocation();
   const navigate = useNavigate();
-  const { authState } = useAuth();
-  console.log({ authState });
+  const { authState, authChecked } = useAuth();
 
   React.useEffect(() => {
-    const preAuth = [
-      "/login",
-      "/signup",
-      "/signup/user",
-      "/signup/organization",
-    ];
+    const preAuth = ["/", "/signup", "/signup/user", "/signup/organization"];
 
-    if (authState.isAuth && preAuth.includes(location.pathname)) {
-      navigate("/home");
-    } else if (!authState.isAuth && !preAuth.includes(location.pathname)) {
-      navigate("/");
+    if (authChecked) {
+      if (authState.isAuth && preAuth.includes(location.pathname)) {
+        navigate("/home");
+      } else if (!authState.isAuth && !preAuth.includes(location.pathname)) {
+        navigate("/");
+      }
     }
-  }, [location.pathname]);
+  }, [location.pathname, authState.isAuth, authChecked]);
 
   return <React.Fragment>{children}</React.Fragment>;
 };
