@@ -3,6 +3,14 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 interface LoginReqBody {}
 interface LoginResponse {}
 
+type Roles = "companyAdmin" | "superAdmin" | "companyUser" | "admin" | "user";
+
+const getUserRoles = (user) => {
+  const roles = [];
+
+  if (user.company_admin) return roles;
+};
+
 export const customApi = createApi({
   reducerPath: "customApi",
   baseQuery: fetchBaseQuery({
@@ -102,6 +110,35 @@ export const appApi = createApi({
       }),
     }),
 
+    fetchUserProfile: build.query<{}, {}>({
+      query: () => ({
+        url: `/profile/user/`,
+        method: "GET",
+      }),
+    }),
+
+    fetchOrganizationProfile: build.query<{}, {}>({
+      query: () => ({
+        url: `/profile/company/`,
+        method: "GET",
+      }),
+    }),
+
+    updateUserProfile: build.mutation<{}, LoginReqBody>({
+      query: (body) => ({
+        url: `/profile/user/`,
+        method: "PUT",
+        body,
+      }),
+    }),
+
+    updateCompanyProfile: build.mutation<{}, LoginReqBody>({
+      query: (body) => ({
+        url: `/profile/company/`,
+        method: "PUT",
+        body,
+      }),
+    }),
     submitOtp: build.mutation<{}, LoginReqBody>({
       query: (body) => ({
         url: `/auth/verify-otp/`,
@@ -157,6 +194,13 @@ export const appApi = createApi({
         body,
       }),
     }),
+
+    approveIncident: build.mutation<{}, { id: string }>({
+      query: ({ id }) => ({
+        url: `/company/incident/${id}/approve/`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -170,6 +214,11 @@ export const {
   useResetPasswordMutation,
   useFetchIncidentsQuery,
   useAddIncidentMutation,
+  useUpdateCompanyProfileMutation,
+  useUpdateUserProfileMutation,
+  useFetchOrganizationProfileQuery,
+  useFetchUserProfileQuery,
+  useApproveIncidentMutation,
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {

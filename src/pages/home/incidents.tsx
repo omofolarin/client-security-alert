@@ -2,12 +2,15 @@ import {
   AdminLayout,
   IncidentTypeForm,
   SelectInput,
+  SelectOption,
   TextInput,
 } from "../../components";
 import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
+  Divider,
   Paper,
   Stack,
   Table,
@@ -18,7 +21,6 @@ import {
   TableRow,
   Toolbar,
   Typography,
-  capitalize,
 } from "@mui/material";
 import {
   useFetchIncidentNatureQuery,
@@ -30,17 +32,20 @@ import {
 
 import { IncidentNatureForm } from "../../components/incident-nature-form";
 import React from "react";
+import capitalize from "lodash.capitalize";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
+const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
+
 interface FilterForm {
   search?: string;
   state?: string;
   incident_type?: string;
-  incident_natures?: string;
+  incident_nature?: string;
   lga?: string;
 }
 export const Incidents = () => {
@@ -67,6 +72,7 @@ export const Incidents = () => {
     useFetchStatesQuery("states");
   const { data: fetchIncidentNatures, ...fetchedIncidentNaturesState } =
     useFetchIncidentNatureQuery("incidentNature");
+
   const { authState } = useAuth();
   const [incidents, setIncidents] = React.useState([]);
   const [states, setStates] = React.useState([]);
@@ -128,7 +134,11 @@ export const Incidents = () => {
         position: toast.POSITION.TOP_CENTER,
       });
     }
-  }, [fetchStatesResult.isSuccess, fetchStatesResult.isError]);
+  }, [
+    fetchStatesResult.isSuccess,
+    fetchedStates?.data,
+    fetchStatesResult.isError,
+  ]);
 
   React.useEffect(() => {
     if (fetchLgasResult.isSuccess) {
@@ -139,7 +149,12 @@ export const Incidents = () => {
         position: toast.POSITION.TOP_CENTER,
       });
     }
-  }, [fetchLgasResult.isSuccess, fetchLgasResult.isError, watch("state")]);
+  }, [
+    fetchLgasResult.isSuccess,
+    fetchedLgas?.data,
+    fetchLgasResult.isError,
+    watch("state"),
+  ]);
 
   React.useEffect(() => {
     if (fetchedIncidentNaturesState.isSuccess) {
@@ -151,6 +166,14 @@ export const Incidents = () => {
     fetchedIncidentNaturesState.isSuccess,
     fetchedIncidentNaturesState.isError,
   ]);
+
+  const lgaInput = register("lga");
+  const stateInput = register("state");
+  const searchInput = register("search");
+
+  const onFilter = (values) => {
+    console.log(values);
+  };
 
   return (
     <AdminLayout>
@@ -201,19 +224,58 @@ export const Incidents = () => {
             </Stack>
           </Box>
 
-          <Toolbar>
+          <form onSubmit={handleSubmit(onFilter)}>
             <Stack
-              spacing={2}
+              spacing={1}
               direction="row"
               alignItems={"center"}
+              justifyContent={"flex-start"}
               width="100%"
-              sx={{ paddingY: 2 }}
+              sx={{ paddingY: 4 }}
             >
               <Box sx={{ width: "100%" }}>
-                <TextInput label="Search" placeholder="Search ..." />
+                <TextInput
+                  label="Search"
+                  placeholder="Search ..."
+                  id="search"
+                  {...searchInput}
+                />
               </Box>
-
-              <SelectInput label="States" />
+              <Autocomplete
+                disablePortal
+                sx={{ width: "100%" }}
+                onChange={(e, newValue) => {
+                  if (newValue) {
+                    setLgas([]);
+                    setValue("state", newValue?.value, {
+                      shouldValidate: true,
+                    });
+                    setValue("lga", "", { shouldValidate: true });
+                  }
+                }}
+                options={states.map((d) => ({
+                  label: capitalize(d.state),
+                  value: d.id,
+                }))}
+                renderInput={(params) => {
+                  // const { InputLabelProps, InputProps, ...rest } = params;
+                  return (
+                    <TextInput
+                      {...params}
+                      {...stateInput}
+                      label="State"
+                      id="state"
+                      error={Boolean(errors["state"])}
+                      helpText={capitalize(errors["state"]?.message)}
+                      onChange={(e) => {
+                        stateInput.onChange(e);
+                      }}
+                      fullWidth
+                      autoComplete="off"
+                    />
+                  );
+                }}
+              />
               <Autocomplete
                 style={{ width: "100%" }}
                 disablePortal
@@ -233,8 +295,41 @@ export const Incidents = () => {
                   return <TextInput {...params} label="Lga" id="lga" />;
                 }}
               />
-              <SelectInput label="Incident Types" />
-              <SelectInput label="Incident Natures" />
+              <SelectInput
+                id="incidentType"
+                label="Incident type"
+                error={Boolean(errors["incident_type"])}
+                helpText={capitalize(errors["incident_type"]?.message)}
+                onChange={(e, newValue) =>
+                  setValue("incident_type", newValue, {
+                    shouldValidate: true,
+                  })
+                }
+              >
+                {incidentTypes.map((d, i) => (
+                  <SelectOption key={i.toString()} value={d.id}>
+                    {d.name}
+                  </SelectOption>
+                ))}
+              </SelectInput>
+              <SelectInput
+                id="incidentNature"
+                label="Incident nature"
+                onChange={(e, newValue) =>
+                  setValue("incident_nature", newValue, {
+                    shouldValidate: true,
+                  })
+                }
+                error={Boolean(errors["incident_nature"])}
+                helpText={capitalize(errors["incident_nature"]?.message)}
+              >
+                {incidentNatures.map((d, i) => (
+                  <SelectOption key={i.toString()} value={d.id}>
+                    {capitalize(d.nature)}
+                  </SelectOption>
+                ))}
+              </SelectInput>
+
               <Box
                 display="flex"
                 justifyContent={"center"}
@@ -242,6 +337,7 @@ export const Incidents = () => {
               >
                 <Button
                   variant="contained"
+                  type="type"
                   disableElevation
                   sx={{ marginTop: 2.5, textTransform: "capitalize" }}
                 >
@@ -249,19 +345,31 @@ export const Incidents = () => {
                 </Button>
               </Box>
             </Stack>
-          </Toolbar>
+          </form>
 
-          <TableContainer component={Paper}>
+          <TableContainer component={OutlinePaper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
+                  <TableCell>
+                    <Checkbox
+                      color="primary"
+                      checked={false}
+                      inputProps={{
+                        "aria-labelledby": "check-item",
+                      }}
+                    />
+                  </TableCell>
+
                   <TableCell>State</TableCell>
-                  <TableCell align="right">LGA</TableCell>
-                  <TableCell align="right">Type</TableCell>
-                  <TableCell align="right">Nature</TableCell>
-                  <TableCell align="right">Date</TableCell>
-                  <TableCell align="right">Time</TableCell>
-                  <TableCell align="right">Details</TableCell>
+                  <TableCell align="center">LGA</TableCell>
+                  <TableCell align="center">Type</TableCell>
+                  <TableCell align="center">Nature</TableCell>
+                  <TableCell align="center">Date</TableCell>
+                  <TableCell align="center">Time</TableCell>
+                  <TableCell align="center">Details</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -270,17 +378,59 @@ export const Incidents = () => {
                     key={i.toString()}
                     // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
+                    <TableCell>
+                      <Checkbox />
+                    </TableCell>
                     <TableCell component="th" scope="row">
                       {row.state}
                     </TableCell>
                     <TableCell component="th" scope="row">
                       {row.lga}
                     </TableCell>
-                    <TableCell align="right">{row.incident_type}</TableCell>
-                    <TableCell align="right">{row.incident_nature}</TableCell>
-                    <TableCell align="right">{row.date}</TableCell>
-                    <TableCell align="right">{row.time}</TableCell>
-                    <TableCell align="right">{row.details}</TableCell>
+                    <TableCell align="left">
+                      {capitalize(row.incident_type)}
+                    </TableCell>
+                    <TableCell align="left">
+                      {capitalize(row.incident_nature)}
+                    </TableCell>
+                    <TableCell align="center">{row.date}</TableCell>
+                    <TableCell align="center">{row.time}</TableCell>
+                    <TableCell align="left">
+                      <Typography variant="caption">{row.details}</Typography>
+                    </TableCell>
+                    <TableCell align="left">
+                      {row.admin_approved ? "Yes" : "No"}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          size="small"
+                          sx={{ textTransform: "capitalize" }}
+                        >
+                          View
+                        </Button>
+                        <Divider
+                          orientation="vertical"
+                          sx={{ height: "2em" }}
+                        />
+                        {row.admin_approved && (
+                          <Button
+                            size="small"
+                            sx={{ textTransform: "capitalize" }}
+                          >
+                            Dismiss
+                          </Button>
+                        )}
+                        {!row.admin_approved && (
+                          <Button
+                            size="small"
+                            sx={{ textTransform: "capitalize" }}
+                          >
+                            Approve
+                          </Button>
+                        )}
+                      </Stack>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

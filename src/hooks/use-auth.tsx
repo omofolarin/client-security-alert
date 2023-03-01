@@ -49,12 +49,21 @@ export const useAuth = () => {
     dispatch(logout());
   };
 
+  const updateUserData = React.useCallback(
+    async (user: Record<string, unknown>) => {
+      setAuthUser(Object.assign({}, authUser, user));
+      dispatch(loginUser(Object.assign({}, authUser, user)));
+    },
+    [authUser]
+  );
+
   return {
     authState,
     onLogin,
     logOut,
     authChecked,
     setAuthChecked,
+    updateUserData,
   };
 };
 
