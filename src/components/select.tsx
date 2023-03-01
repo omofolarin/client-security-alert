@@ -81,6 +81,7 @@ export const SelectInputButton = React.forwardRef(function Button<
 >(props: SelectUnstyledRootSlotProps<TValue>, ref: React.ForwardedRef<HTMLButtonElement>) {
   const { ownerState, ...other } = props;
   const { classes } = useStyle({ size: "medium" });
+
   return (
     <button type="button" {...other} ref={ref} className={classes.styledButton}>
       {other.children}
@@ -161,7 +162,7 @@ export type SelectInputProps<TValue extends {}> =
     labelClassName?: string;
     id?: string;
     required?: boolean;
-    error: boolean;
+    error?: boolean;
     helpText?: string;
   };
 

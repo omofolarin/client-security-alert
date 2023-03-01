@@ -9,13 +9,13 @@ import {
 import {
   Autocomplete,
   Box,
-  Button,
   Card,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
 import {
+  useAddIncidentMutation,
   useFetchIncidentNatureQuery,
   useFetchIncidentTypesQuery,
   useFetchLgasQuery,
@@ -25,10 +25,12 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { FileUploadOutlined } from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import React from "react";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import capitalize from "lodash.capitalize";
+import moment from "moment";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks";
 import { useForm } from "react-hook-form";
@@ -92,12 +94,15 @@ export const CreateIncident = () => {
   const [lgas, setLgas] = React.useState([]);
   const [incidentTypes, setIncidentTypes] = React.useState([]);
   const [incidentNatures, setIncidentNatures] = React.useState([]);
+  const [addIncident, result] = useAddIncidentMutation();
 
   const { data: fetchedLgas, ...fetchLgasResult } = useFetchLgasQuery(
     (() => {
       if (watch("state") != undefined) {
         let id = watch("state");
-        return states.filter((s) => s.id === id)?.[0]?.state;
+        console.log(id);
+        console.log(states.filter((s) => s.id === id)?.[0]?.state);
+        return states.filter((s) => s.id === id)?.[0]?.state?.toLowerCase();
       } else {
         return "lagos";
       }
@@ -105,10 +110,10 @@ export const CreateIncident = () => {
   );
 
   React.useEffect(() => {
-    if (authState.authUser?.user_id) {
-      setValue("owner", authState.authUser?.user_id);
+    if (authState?.user?.user_id) {
+      setValue("owner", authState?.user?.user_id);
     }
-  }, [authState.authUser?.user_id]);
+  }, [authState?.user?.user_id]);
 
   React.useEffect(() => {
     if (fetchedIncidentTypesState.isSuccess) {
@@ -128,17 +133,27 @@ export const CreateIncident = () => {
   React.useEffect(() => {
     if (fetchStatesResult.isSuccess) {
       const data = fetchedStates?.data ?? [];
-      console.log(data);
       setStates(data);
+      setLgas([]);
+      setValue("lga", "", { shouldValidate: false });
+      (async () => {
+        const result = await fetchLgasResult.refetch();
+        setLgas(result.data?.data ?? []);
+      })();
     } else if (fetchStatesResult.isError) {
       toast.error("Could not load states. Please try again.", {
         position: toast.POSITION.TOP_CENTER,
       });
     }
-  }, [fetchStatesResult.isSuccess, fetchStatesResult.isError]);
+  }, [
+    fetchStatesResult.isSuccess,
+    fetchedStates?.data,
+    fetchStatesResult.isError,
+  ]);
 
   React.useEffect(() => {
     if (fetchLgasResult.isSuccess) {
+      console.log({ currentData: fetchLgasResult.currentData });
       const data = fetchedLgas?.data ?? [];
       setLgas(data);
     } else if (fetchLgasResult.isError) {
@@ -146,7 +161,12 @@ export const CreateIncident = () => {
         position: toast.POSITION.TOP_CENTER,
       });
     }
-  }, [fetchLgasResult.isSuccess, fetchLgasResult.isError, watch("state")]);
+  }, [
+    fetchLgasResult.isSuccess,
+    fetchedLgas?.data,
+    fetchLgasResult.isError,
+    watch("state"),
+  ]);
 
   React.useEffect(() => {
     if (fetchedIncidentNaturesState.isSuccess) {
@@ -159,6 +179,13 @@ export const CreateIncident = () => {
     fetchedIncidentNaturesState.isError,
   ]);
 
+  React.useEffect(() => {
+    if (result.isSuccess) {
+      navigate("/home/incidents");
+      toast.success("Incident recorded successfully");
+    }
+  }, [result.isSuccess]);
+
   const nameInput = register("name");
   const dateInput = register("date");
   const timeInput = register("time");
@@ -170,8 +197,18 @@ export const CreateIncident = () => {
   const stateInput = register("state");
   const noVictimsInput = register("number_of_victims");
 
-  const onSubmit = (v) => {};
+  const onSubmit = async (v) => {
+    console.log(v);
+    await addIncident({
+      ...v,
+      lga: parseInt(v.lga, 10),
+      state: parseInt(v.state, 10),
+      date: moment(v.date).format("YYYY-MM-DD"),
+      time: moment(v.time).format("h:mm:ss"),
+    });
+  };
 
+  console.log({ errors });
   return (
     <AdminLayout>
       <Box
@@ -382,6 +419,7 @@ export const CreateIncident = () => {
                               stateInput.onChange(e);
                             }}
                             fullWidth
+                            autoComplete="off"
                           />
                         );
                       }}
@@ -412,6 +450,7 @@ export const CreateIncident = () => {
                             error={Boolean(errors["lga"])}
                             helpText={capitalize(errors["lga"]?.message)}
                             onChange={(e) => lgaInput.onChange(e)}
+                            autoComplete="off"
                           />
                         );
                       }}
@@ -456,9 +495,13 @@ export const CreateIncident = () => {
                   </Card>
                 </label>
                 <Box>
-                  <Button variant="contained" type="submit">
+                  <LoadingButton
+                    variant="contained"
+                    type="submit"
+                    loading={result.isLoading}
+                  >
                     Submit
-                  </Button>
+                  </LoadingButton>
                 </Box>
               </Stack>
             </form>

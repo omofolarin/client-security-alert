@@ -2,6 +2,7 @@ import {
   CreateIncident,
   Dashboard,
   ForgotPassword,
+  IncidentTypes,
   Incidents,
   Kyc,
   Login,
@@ -62,6 +63,11 @@ export const router = createBrowserRouter(
     {
       path: "/home/incidents",
       element: <Incidents />,
+    },
+
+    {
+      path: "/home/incidents/types",
+      element: <IncidentTypes />,
     },
 
     {

@@ -142,6 +142,21 @@ export const appApi = createApi({
         body,
       }),
     }),
+
+    fetchIncidents: build.query<{}, LoginReqBody>({
+      query: () => ({
+        url: `/incident/`,
+        method: "GET",
+      }),
+    }),
+
+    addIncident: build.mutation<{}, LoginReqBody>({
+      query: (body) => ({
+        url: `/incident/`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -153,6 +168,8 @@ export const {
   useResendOtpMutation,
   useSubmitKycMutation,
   useResetPasswordMutation,
+  useFetchIncidentsQuery,
+  useAddIncidentMutation,
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {
