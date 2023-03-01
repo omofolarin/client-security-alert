@@ -19,10 +19,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import {
+  useApproveIncidentMutation,
   useFetchIncidentNatureQuery,
   useFetchIncidentTypesQuery,
   useFetchIncidentsQuery,
@@ -31,13 +31,13 @@ import {
 } from "../../api";
 
 import { IncidentNatureForm } from "../../components/incident-nature-form";
+import { LoadingButton } from "@mui/lab";
 import React from "react";
 import capitalize from "lodash.capitalize";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { yupResolver } from "@hookform/resolvers/yup";
 
 const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
 
@@ -72,6 +72,7 @@ export const Incidents = () => {
     useFetchStatesQuery("states");
   const { data: fetchIncidentNatures, ...fetchedIncidentNaturesState } =
     useFetchIncidentNatureQuery("incidentNature");
+  const [approveIncident, approveIncidentResult] = useApproveIncidentMutation();
 
   const { authState } = useAuth();
   const [incidents, setIncidents] = React.useState([]);
@@ -90,7 +91,11 @@ export const Incidents = () => {
         position: toast.POSITION.TOP_CENTER,
       });
     }
-  }, [fetchedIncidentsState.isSuccess, fetchedIncidentsState.isError]);
+  }, [
+    fetchedIncidentsState.isSuccess,
+    fetchedIncidentsState?.data,
+    fetchedIncidentsState.isError,
+  ]);
 
   const { data: fetchedLgas, ...fetchLgasResult } = useFetchLgasQuery(
     (() => {
@@ -159,6 +164,7 @@ export const Incidents = () => {
   React.useEffect(() => {
     if (fetchedIncidentNaturesState.isSuccess) {
       const data = fetchIncidentNatures?.data ?? [];
+
       setIncidentNatures(data);
     } else if (fetchedIncidentNaturesState.isError) {
     }
@@ -166,6 +172,22 @@ export const Incidents = () => {
     fetchedIncidentNaturesState.isSuccess,
     fetchedIncidentNaturesState.isError,
   ]);
+
+  React.useEffect(() => {
+    if (approveIncidentResult.isSuccess) {
+      (async () => {
+        const d = await fetchedIncidentsState.refetch();
+        setIncidents(d.data?.data ?? []);
+      })();
+      toast.success("Incident has been approved", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } else if (approveIncidentResult.isError) {
+      toast.error("Error approving incident", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [approveIncidentResult.isSuccess, approveIncidentResult.isError]);
 
   const lgaInput = register("lga");
   const stateInput = register("state");
@@ -373,66 +395,76 @@ export const Incidents = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {incidents.map((row, i) => (
-                  <TableRow
-                    key={i.toString()}
-                    // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell>
-                      <Checkbox />
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      {row.state}
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      {row.lga}
-                    </TableCell>
-                    <TableCell align="left">
-                      {capitalize(row.incident_type)}
-                    </TableCell>
-                    <TableCell align="left">
-                      {capitalize(row.incident_nature)}
-                    </TableCell>
-                    <TableCell align="center">{row.date}</TableCell>
-                    <TableCell align="center">{row.time}</TableCell>
-                    <TableCell align="left">
-                      <Typography variant="caption">{row.details}</Typography>
-                    </TableCell>
-                    <TableCell align="left">
-                      {row.admin_approved ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1}>
-                        <Button
-                          size="small"
-                          sx={{ textTransform: "capitalize" }}
-                        >
-                          View
-                        </Button>
-                        <Divider
-                          orientation="vertical"
-                          sx={{ height: "2em" }}
-                        />
-                        {row.admin_approved && (
+                {incidents.map((row, i) => {
+                  return (
+                    <TableRow
+                      key={i.toString()}
+                      // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell>
+                        <Checkbox />
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {row.state}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
+                        {row.lga}
+                      </TableCell>
+                      <TableCell align="left">
+                        {capitalize(row.incident_type)}
+                      </TableCell>
+                      <TableCell align="left">
+                        {capitalize(row.incident_nature)}
+                      </TableCell>
+                      <TableCell align="center">{row.date}</TableCell>
+                      <TableCell align="center">{row.time}</TableCell>
+                      <TableCell align="left">
+                        <Typography variant="caption">{row.details}</Typography>
+                      </TableCell>
+                      <TableCell align="left">
+                        {row.company_approved ? "Yes" : "No"}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Stack direction="row" spacing={1}>
                           <Button
                             size="small"
                             sx={{ textTransform: "capitalize" }}
                           >
-                            Dismiss
+                            View
                           </Button>
-                        )}
-                        {!row.admin_approved && (
-                          <Button
-                            size="small"
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            Approve
-                          </Button>
-                        )}
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          <Divider
+                            orientation="vertical"
+                            sx={{ height: "2em" }}
+                          />
+                          {row.company_approved && (
+                            <Button
+                              size="small"
+                              sx={{ textTransform: "capitalize" }}
+                            >
+                              Dismiss
+                            </Button>
+                          )}
+                          {!row.company_approved && (
+                            <LoadingButton
+                              size="small"
+                              sx={{ textTransform: "capitalize" }}
+                              loading={
+                                approveIncidentResult.isLoading &&
+                                approveIncidentResult.originalArgs?.id ===
+                                  row.id
+                              }
+                              onClick={async () => {
+                                await approveIncident({ id: row.id });
+                              }}
+                            >
+                              Approve
+                            </LoadingButton>
+                          )}
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

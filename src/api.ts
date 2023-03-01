@@ -3,19 +3,11 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 interface LoginReqBody {}
 interface LoginResponse {}
 
-type Roles = "companyAdmin" | "superAdmin" | "companyUser" | "admin" | "user";
-
-const getUserRoles = (user) => {
-  const roles = [];
-
-  if (user.company_admin) return roles;
-};
-
 export const customApi = createApi({
   reducerPath: "customApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://174.138.9.133/",
-    prepareHeaders: async (headers, { getState }) => {
+    prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
       console.log({ token });
       if (token) {
@@ -75,7 +67,7 @@ export const appApi = createApi({
   reducerPath: "appApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://174.138.9.133/api/v1/",
-    prepareHeaders: async (headers, { getState }) => {
+    prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
       console.log({ token });
       if (token) {
