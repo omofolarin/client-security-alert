@@ -2,6 +2,11 @@ import { AdminLayout, TextInput } from "../../components";
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   Grid,
   Paper,
@@ -14,9 +19,11 @@ import {
   Typography,
 } from "@mui/material";
 import {
+  parseErrorMessage,
   useApproveIncidentMutation,
   useFetchOrganizationProfileQuery,
   useFetchUserProfileQuery,
+  useResetPasswordMutation,
   useUpdateCompanyProfileMutation,
   useUpdateUserProfileMutation,
 } from "../../api";
@@ -29,6 +36,66 @@ import { useForm } from "react-hook-form";
 
 const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
 
+const ResetPassword = ({ isOpen, onClose }) => {
+  const [resetPassword, result] = useResetPasswordMutation();
+  const { handleSubmit, register } = useForm();
+
+  React.useEffect(() => {
+    if (result.isSuccess) {
+      onClose();
+      toast.success("Password reset successful", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } else if (result.isError) {
+      toast.error(`Password reset failed: ${parseErrorMessage(result)}`, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [result.isError, result.isSuccess, result?.data]);
+
+  const onSubmit = async (values) => {
+    console.log({ values });
+    await resetPassword(values);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Dialog open={isOpen} onClose={onClose} aria-labelledby={""}>
+        <DialogTitle id={"change-password-title"}>Change Password</DialogTitle>
+        <DialogContent sx={{ minWidth: "400px" }}>
+          <Stack spacing={2}>
+            <TextInput
+              label="Old password"
+              id="oldPassword"
+              {...register("old_password")}
+            />
+            <TextInput
+              label="New password"
+              id="newPassword"
+              {...register("new_password")}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ paddingX: 3 }}>
+          <Stack spacing={2} direction="row">
+            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ textTransform: "capitalize" }}
+              disableElevation
+            >
+              Submit
+            </Button>
+          </Stack>
+        </DialogActions>
+      </Dialog>
+    </form>
+  );
+};
 export const Settings = () => {
   const { data: userProfile, ...userProfileState } =
     useFetchUserProfileQuery("userProfile");
@@ -42,7 +109,7 @@ export const Settings = () => {
 
   const { register, handleSubmit, setValue, getValues } = useForm({});
   const { updateUserData } = useAuth();
-
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = React.useState(false);
   React.useEffect(() => {
     if (userProfileState.isSuccess) {
       setValue("first_name", userProfile?.data?.first_name);
@@ -142,7 +209,10 @@ export const Settings = () => {
               >
                 <Typography>Profile Information</Typography>
                 <Stack direction="row" spacing={1}>
-                  <Button sx={{ textTransform: "capitalize" }}>
+                  <Button
+                    sx={{ textTransform: "capitalize" }}
+                    onClick={() => setIsPasswordDialogOpen(true)}
+                  >
                     Change Password
                   </Button>
 
@@ -238,6 +308,13 @@ export const Settings = () => {
             </Paper>
           </Grid>
         </Grid>
+
+        <ResetPassword
+          isOpen={isPasswordDialogOpen}
+          onClose={() => {
+            setIsPasswordDialogOpen(false);
+          }}
+        />
       </Box>
     </AdminLayout>
   );

@@ -190,7 +190,6 @@ export const appApi = createApi({
           query["incident_type"] = params.incident_type;
         }
         if (params.lga) {
-          console.log("got here...");
           query["lga"] = params.lga;
         }
         if (params.state) {
