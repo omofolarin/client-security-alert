@@ -207,7 +207,6 @@ export const appApi = createApi({
           });
         }
 
-        console.log({ queryString, params });
         return {
           url: `/incident/?${queryString}`,
           method: "GET",
@@ -218,6 +217,14 @@ export const appApi = createApi({
     addIncident: build.mutation<{}, LoginReqBody>({
       query: (body) => ({
         url: `/incident/`,
+        method: "POST",
+        body,
+      }),
+    }),
+
+    addUser: build.mutation<{}, LoginReqBody>({
+      query: (body) => ({
+        url: `/profile/company/add-user/`,
         method: "POST",
         body,
       }),
@@ -247,6 +254,7 @@ export const {
   useFetchOrganizationProfileQuery,
   useFetchUserProfileQuery,
   useApproveIncidentMutation,
+  useAddUserMutation,
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {

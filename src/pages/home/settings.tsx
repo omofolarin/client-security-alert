@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import {
   parseErrorMessage,
+  useAddUserMutation,
   useFetchOrganizationProfileQuery,
   useFetchUserProfileQuery,
   useResetPasswordMutation,
@@ -33,6 +34,60 @@ import { useForm } from "react-hook-form";
 
 const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
 
+const AddEmail = ({ isOpen, onClose }) => {
+  const { register, handleSubmit } = useForm();
+  const [addUser, result] = useAddUserMutation();
+
+  React.useEffect(() => {
+    if (result.isSuccess) {
+      onClose();
+      toast.success("User added successful", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } else if (result.isError) {
+      toast.error(`Failed to add user: failed: ${parseErrorMessage(result)}`, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [result.isError, result.isSuccess, result?.data]);
+
+  const onSubmit = async (value) => {
+    await addUser(value);
+  };
+
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby={"addUserToCompany"}
+    >
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogTitle id={"addUserToCompany"}>Add User</DialogTitle>
+        <DialogContent sx={{ minWidth: "400px" }}>
+          <Stack>
+            <TextInput label="Email" id="email" {...register("email")} />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Stack spacing={2} direction="row">
+            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ textTransform: "capitalize" }}
+              disableElevation
+            >
+              Submit
+            </Button>
+          </Stack>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
 const ResetPassword = ({ isOpen, onClose }) => {
   const [resetPassword, result] = useResetPasswordMutation();
   const { handleSubmit, register } = useForm();
@@ -107,6 +162,7 @@ export const Settings = () => {
   const { register, handleSubmit, setValue, getValues } = useForm({});
   const { updateUserData } = useAuth();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = React.useState(false);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
   React.useEffect(() => {
     if (userProfileState.isSuccess) {
       setValue("first_name", userProfile?.data?.first_name);
@@ -214,7 +270,10 @@ export const Settings = () => {
                   </Button>
 
                   <Divider orientation="vertical" />
-                  <Button sx={{ textTransform: "capitalize" }}>
+                  <Button
+                    sx={{ textTransform: "capitalize" }}
+                    onClick={() => setIsEmailDialogOpen(true)}
+                  >
                     Add new user
                   </Button>
                 </Stack>
@@ -310,6 +369,12 @@ export const Settings = () => {
           isOpen={isPasswordDialogOpen}
           onClose={() => {
             setIsPasswordDialogOpen(false);
+          }}
+        />
+        <AddEmail
+          isOpen={isEmailDialogOpen}
+          onClose={() => {
+            setIsEmailDialogOpen(false);
           }}
         />
       </Box>
