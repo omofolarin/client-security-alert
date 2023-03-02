@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Divider,
   Grid,
@@ -20,7 +19,6 @@ import {
 } from "@mui/material";
 import {
   parseErrorMessage,
-  useApproveIncidentMutation,
   useFetchOrganizationProfileQuery,
   useFetchUserProfileQuery,
   useResetPasswordMutation,
@@ -28,7 +26,6 @@ import {
   useUpdateUserProfileMutation,
 } from "../../api";
 
-import { Container } from "@mui/system";
 import React from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks";
@@ -59,8 +56,8 @@ const ResetPassword = ({ isOpen, onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Dialog open={isOpen} onClose={onClose} aria-labelledby={""}>
+    <Dialog open={isOpen} onClose={onClose} aria-labelledby={""}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle id={"change-password-title"}>Change Password</DialogTitle>
         <DialogContent sx={{ minWidth: "400px" }}>
           <Stack spacing={2}>
@@ -92,8 +89,8 @@ const ResetPassword = ({ isOpen, onClose }) => {
             </Button>
           </Stack>
         </DialogActions>
-      </Dialog>
-    </form>
+      </form>
+    </Dialog>
   );
 };
 export const Settings = () => {

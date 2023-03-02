@@ -199,7 +199,12 @@ export const Incidents = () => {
   const stateInput = register("state");
   const searchInput = register("search");
 
-  const onFilter = async (values) => {
+  const onFilter = async (values: {
+    search?: string | undefined;
+    state?: string | undefined;
+    incident_type?: string | undefined;
+    lga?: string | undefined;
+  }) => {
     console.log(values);
 
     await fetchedIncident(values);
