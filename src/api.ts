@@ -7,6 +7,7 @@ export const customApi = createApi({
   reducerPath: "customApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://174.138.9.133/",
+
     prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
       console.log({ token });
@@ -70,7 +71,7 @@ export const appApi = createApi({
     prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
       console.log({ token });
-      if (token) {
+      if (token && token !== "null") {
         headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
