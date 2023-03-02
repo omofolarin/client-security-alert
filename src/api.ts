@@ -172,11 +172,49 @@ export const appApi = createApi({
       }),
     }),
 
-    fetchIncidents: build.query<{}, LoginReqBody>({
-      query: () => ({
-        url: `/incident/`,
-        method: "GET",
-      }),
+    fetchIncidents: build.mutation<
+      {},
+      {
+        search?: string;
+        state?: string;
+        incident_type?: string;
+        lga?: string;
+      }
+    >({
+      query: (params) => {
+        const query = {};
+        if (params.search) {
+          query["search"] = params.search;
+        }
+        if (params.incident_type) {
+          query["incident_type"] = params.incident_type;
+        }
+        if (params.lga) {
+          console.log("got here...");
+          query["lga"] = params.lga;
+        }
+        if (params.state) {
+          query["state"] = params.state;
+        }
+
+        let queryString = "";
+        if (Object.keys(query).length) {
+          Object.entries(query).map(([key, value], i) => {
+            console.log(key);
+            queryString =
+              queryString +
+              `${key}=${value}${
+                i !== 0 && i !== queryString.length - 1 ? "&" : ""
+              }`;
+          });
+        }
+
+        console.log({ queryString, params });
+        return {
+          url: `/incident/?${queryString}`,
+          method: "GET",
+        };
+      },
     }),
 
     addIncident: build.mutation<{}, LoginReqBody>({
@@ -204,7 +242,7 @@ export const {
   useResendOtpMutation,
   useSubmitKycMutation,
   useResetPasswordMutation,
-  useFetchIncidentsQuery,
+  useFetchIncidentsMutation,
   useAddIncidentMutation,
   useUpdateCompanyProfileMutation,
   useUpdateUserProfileMutation,

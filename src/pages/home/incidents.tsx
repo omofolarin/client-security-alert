@@ -25,7 +25,7 @@ import {
   useApproveIncidentMutation,
   useFetchIncidentNatureQuery,
   useFetchIncidentTypesQuery,
-  useFetchIncidentsQuery,
+  useFetchIncidentsMutation,
   useFetchLgasQuery,
   useFetchStatesQuery,
 } from "../../api";
@@ -53,8 +53,7 @@ export const Incidents = () => {
     React.useState(false);
   const [isIncidentNatureModalOpen, setIncidentNatureModal] =
     React.useState(false);
-  const { data: fetchedIncident, ...fetchedIncidentsState } =
-    useFetchIncidentsQuery("incidents");
+
   const {
     watch,
     setValue,
@@ -65,6 +64,8 @@ export const Incidents = () => {
     mode: "onChange",
     // resolver: yupResolver(formSchema),
   });
+
+  const [fetchedIncident, fetchedIncidentsState] = useFetchIncidentsMutation();
   const navigate = useNavigate();
   const { data: fetchedIncidentTypes, ...fetchedIncidentTypesState } =
     useFetchIncidentTypesQuery("incidentTypes");
@@ -82,8 +83,13 @@ export const Incidents = () => {
   const [incidentNatures, setIncidentNatures] = React.useState([]);
 
   React.useEffect(() => {
+    fetchedIncident({});
+  }, []);
+
+  React.useEffect(() => {
     if (fetchedIncidentsState.isSuccess) {
-      const data = fetchedIncident?.data ?? [];
+      console.log({ fetchedIncidentsState: fetchedIncidentsState.data });
+      const data = fetchedIncidentsState.data.data ?? [];
       console.log(data);
       setIncidents(data);
     } else if (fetchedIncidentsState.isError) {
@@ -176,7 +182,7 @@ export const Incidents = () => {
   React.useEffect(() => {
     if (approveIncidentResult.isSuccess) {
       (async () => {
-        const d = await fetchedIncidentsState.refetch();
+        const d = fetchedIncidentsState.data;
         setIncidents(d.data?.data ?? []);
       })();
       toast.success("Incident has been approved", {
@@ -193,8 +199,10 @@ export const Incidents = () => {
   const stateInput = register("state");
   const searchInput = register("search");
 
-  const onFilter = (values) => {
+  const onFilter = async (values) => {
     console.log(values);
+
+    await fetchedIncident(values);
   };
 
   return (
