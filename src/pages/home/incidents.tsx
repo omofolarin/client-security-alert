@@ -106,8 +106,8 @@ export const Incidents = () => {
   const { data: fetchedLgas, ...fetchLgasResult } = useFetchLgasQuery(
     (() => {
       if (watch("state") != undefined) {
-        let id = watch("state");
-        return states.filter((s) => s.id === id)?.[0]?.state;
+        let state = watch("state");
+        return state;
       } else {
         return "lagos";
       }
@@ -285,7 +285,7 @@ export const Incidents = () => {
                 }}
                 options={states.map((d) => ({
                   label: capitalize(d.state),
-                  value: d.id,
+                  value: d.state,
                 }))}
                 renderInput={(params) => {
                   // const { InputLabelProps, InputProps, ...rest } = params;
@@ -318,7 +318,7 @@ export const Incidents = () => {
                 }}
                 options={lgas.map((d) => ({
                   label: capitalize(d.lga ?? ""),
-                  value: d.id,
+                  value: d.lga,
                 }))}
                 renderInput={(params) => {
                   // const { InputLabelProps, InputProps, ...rest } = params;
@@ -337,7 +337,7 @@ export const Incidents = () => {
                 }
               >
                 {incidentTypes.map((d, i) => (
-                  <SelectOption key={i.toString()} value={d.id}>
+                  <SelectOption key={i.toString()} value={d.name}>
                     {d.name}
                   </SelectOption>
                 ))}
@@ -354,7 +354,7 @@ export const Incidents = () => {
                 helpText={capitalize(errors["incident_nature"]?.message)}
               >
                 {incidentNatures.map((d, i) => (
-                  <SelectOption key={i.toString()} value={d.id}>
+                  <SelectOption key={i.toString()} value={d.nature}>
                     {capitalize(d.nature)}
                   </SelectOption>
                 ))}

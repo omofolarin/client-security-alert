@@ -203,9 +203,7 @@ export const appApi = createApi({
             console.log(key);
             queryString =
               queryString +
-              `${key}=${value}${
-                i !== 0 && i !== queryString.length - 1 ? "&" : ""
-              }`;
+              `${key}=${value}${queryString.length - 1 !== i ? "&" : ""}`;
           });
         }
 
