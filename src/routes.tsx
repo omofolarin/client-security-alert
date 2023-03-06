@@ -14,6 +14,7 @@ import {
   Roles,
   Settings,
   Tickets,
+  ViewIncident,
 } from "./pages";
 
 import { createBrowserRouter } from "react-router-dom";
@@ -63,6 +64,11 @@ export const router = createBrowserRouter(
     {
       path: "/home/incidents",
       element: <Incidents />,
+    },
+
+    {
+      path: "/home/incidents/:id",
+      element: <ViewIncident />,
     },
 
     {

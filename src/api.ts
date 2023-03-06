@@ -236,6 +236,35 @@ export const appApi = createApi({
         method: "GET",
       }),
     }),
+
+    fetchCompanyUsers: build.query<{}, LoginReqBody>({
+      query: () => ({
+        url: "/profile/company/view-users",
+        method: "GET",
+      }),
+    }),
+
+    addUserLocation: build.mutation<{}, {}>({
+      query: (body) => ({
+        url: "/profile/user/locations/",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    fetchUserLocation: build.query<{}, {}>({
+      query: () => ({
+        url: "/profile/user/locations/",
+        method: "GET",
+      }),
+    }),
+
+    fetchIncidentDetails: build.query<{}, { id: string }>({
+      query: ({ id }) => ({
+        url: `/incident/${id}/detail/`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -255,6 +284,10 @@ export const {
   useFetchUserProfileQuery,
   useApproveIncidentMutation,
   useAddUserMutation,
+  useFetchCompanyUsersQuery,
+  useAddUserLocationMutation,
+  useFetchUserLocationQuery,
+  useFetchIncidentDetailsQuery,
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {

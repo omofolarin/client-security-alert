@@ -1,16 +1,19 @@
-import { AdminLayout, TextInput } from "../../components";
+import { AdminLayout, TextInput, UsersTable } from "../../components";
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Divider,
   Grid,
   Paper,
   Stack,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -19,8 +22,13 @@ import {
 } from "@mui/material";
 import {
   parseErrorMessage,
+  useAddUserLocationMutation,
   useAddUserMutation,
+  useFetchCompanyUsersQuery,
+  useFetchLgasQuery,
   useFetchOrganizationProfileQuery,
+  useFetchStatesQuery,
+  useFetchUserLocationQuery,
   useFetchUserProfileQuery,
   useResetPasswordMutation,
   useUpdateCompanyProfileMutation,
@@ -28,6 +36,7 @@ import {
 } from "../../api";
 
 import React from "react";
+import capitalize from "lodash.capitalize";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks";
 import { useForm } from "react-hook-form";
@@ -88,6 +97,7 @@ const AddEmail = ({ isOpen, onClose }) => {
     </Dialog>
   );
 };
+
 const ResetPassword = ({ isOpen, onClose }) => {
   const [resetPassword, result] = useResetPasswordMutation();
   const { handleSubmit, register } = useForm();
@@ -148,6 +158,179 @@ const ResetPassword = ({ isOpen, onClose }) => {
     </Dialog>
   );
 };
+
+const Location = ({ isOpen, onClose }) => {
+  const {
+    register,
+    setValue,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const { data: fetchedStates, ...fetchStatesResult } =
+    useFetchStatesQuery("states");
+  const [states, setStates] = React.useState([]);
+  const [lgas, setLgas] = React.useState([]);
+
+  const { data: fetchedLgas, ...fetchLgasResult } = useFetchLgasQuery(
+    (() => {
+      if (watch("state") != undefined) {
+        let state = watch("state");
+        return state;
+      } else {
+        return "lagos";
+      }
+    })()
+  );
+
+  const [addUserLocation, addUserLocationResult] = useAddUserLocationMutation();
+
+  const stateInput = register("state");
+
+  React.useEffect(() => {
+    if (fetchStatesResult.isSuccess) {
+      const data = fetchedStates?.data ?? [];
+      console.log(data);
+      setStates(data);
+    } else if (fetchStatesResult.isError) {
+      toast.error("Could not load states. Please try again.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [
+    fetchStatesResult.isSuccess,
+    fetchedStates?.data,
+    fetchStatesResult.isError,
+  ]);
+
+  React.useEffect(() => {
+    if (fetchLgasResult.isSuccess) {
+      const data = fetchedLgas?.data ?? [];
+      setLgas(data);
+    } else if (fetchLgasResult.isError) {
+      toast.error("Could not load Lgas. Please try again.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [
+    fetchLgasResult.isSuccess,
+    fetchedLgas?.data,
+    fetchLgasResult.isError,
+    watch("state"),
+  ]);
+
+  React.useEffect(() => {
+    if (addUserLocationResult.isSuccess) {
+      toast.success("Location added successfully", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      onClose();
+      reset();
+    } else if (addUserLocationResult.isError) {
+      toast.error("Error submitting location.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [
+    addUserLocationResult.isSuccess,
+    addUserLocationResult.isError,
+    addUserLocationResult.data,
+  ]);
+
+  const onSubmit = async (value) => {
+    await addUserLocation({
+      ...value,
+      state: states.filter((f) => f.state === value.state)?.[0]?.id,
+      lga: lgas.filter((l) => l.lga === value.lga)?.[0]?.id,
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onClose={onClose} aria-labelledby={"user-location"}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogTitle id={"user-location"}>Add location</DialogTitle>
+        <DialogContent sx={{ minWidth: "400px" }}>
+          <Stack spacing={2}>
+            <TextInput label="Name" id="name" {...register("name")} />
+            <TextInput label="Address" id="address" {...register("address")} />
+            <Autocomplete
+              disablePortal
+              sx={{ width: "100%" }}
+              onChange={(e, newValue) => {
+                if (newValue) {
+                  setLgas([]);
+                  setValue("state", newValue?.value, {
+                    shouldValidate: true,
+                  });
+                  setValue("lga", "", { shouldValidate: true });
+                }
+              }}
+              options={states.map((d) => ({
+                label: capitalize(d.state),
+                value: d.state,
+              }))}
+              renderInput={(params) => {
+                // const { InputLabelProps, InputProps, ...rest } = params;
+                return (
+                  <TextInput
+                    {...params}
+                    {...stateInput}
+                    label="State"
+                    id="state"
+                    error={Boolean(errors["state"])}
+                    helpText={capitalize(errors["state"]?.message)}
+                    onChange={(e) => {
+                      stateInput.onChange(e);
+                    }}
+                    fullWidth
+                    autoComplete="off"
+                  />
+                );
+              }}
+            />
+            <Autocomplete
+              style={{ width: "100%" }}
+              disablePortal
+              onChange={(e, newValue) => {
+                if (newValue) {
+                  setValue("lga", newValue?.value, {
+                    shouldValidate: true,
+                  });
+                }
+              }}
+              options={lgas.map((d) => ({
+                label: capitalize(d.lga ?? ""),
+                value: d.lga,
+              }))}
+              renderInput={(params) => {
+                // const { InputLabelProps, InputProps, ...rest } = params;
+                return <TextInput {...params} label="Lga" id="lga" />;
+              }}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ mx: 2 }}>
+          <Stack spacing={2} direction="row">
+            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ textTransform: "capitalize" }}
+              disableElevation
+            >
+              Submit
+            </Button>
+          </Stack>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
 export const Settings = () => {
   const { data: userProfile, ...userProfileState } =
     useFetchUserProfileQuery("userProfile");
@@ -158,11 +341,17 @@ export const Settings = () => {
     useUpdateUserProfileMutation();
   const [updateCompanyProfile, updateCompanyProfileResult] =
     useUpdateCompanyProfileMutation();
-
+  const { data: companyUsers, ...companyUsersState } =
+    useFetchCompanyUsersQuery({});
+  const { data: fetchUserLocation, ...fetchUserLocationState } =
+    useFetchUserLocationQuery({});
   const { register, handleSubmit, setValue, getValues } = useForm({});
   const { updateUserData } = useAuth();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = React.useState(false);
   const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
+  const [isLocationDialogOpen, setIsLocationDialogOpen] = React.useState(false);
+
+  console.log({ companyUsers });
   React.useEffect(() => {
     if (userProfileState.isSuccess) {
       setValue("first_name", userProfile?.data?.first_name);
@@ -237,7 +426,13 @@ export const Settings = () => {
 
   return (
     <AdminLayout>
-      <Box sx={{ bgcolor: "rgb(250, 250, 251)", minHeight: "100vh" }}>
+      <Box
+        sx={{
+          bgcolor: "rgb(250, 250, 251)",
+          minHeight: "100vh",
+          overflowY: "scroll",
+        }}
+      >
         <Typography sx={{ paddingX: 4, paddingY: 2, fontSize: "0.9rem" }}>
           Home / Settings
         </Typography>
@@ -343,6 +538,7 @@ export const Settings = () => {
                     disableElevation
                     size="medium"
                     sx={{ textTransform: "capitalize" }}
+                    onClick={() => setIsLocationDialogOpen(true)}
                   >
                     New location
                   </Button>
@@ -353,17 +549,68 @@ export const Settings = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Name</TableCell>
-                      <TableCell align="right">Address</TableCell>
-                      <TableCell align="right">State</TableCell>
-                      <TableCell align="right">Lga</TableCell>
-                      <TableCell align="right">Owner</TableCell>
+                      <TableCell align="left">Address</TableCell>
+                      <TableCell align="left">State</TableCell>
+                      <TableCell align="left">Lga</TableCell>
                     </TableRow>
                   </TableHead>
+                  <TableBody>
+                    {(fetchUserLocation?.data ?? []).map((row, i) => {
+                      return (
+                        <TableRow key={i.toString()}>
+                          <TableCell component="th" scope="row">
+                            {row.name}
+                          </TableCell>
+
+                          <TableCell component="th" scope="row">
+                            {row.address}
+                          </TableCell>
+
+                          <TableCell component="th" scope="row">
+                            {row.state}
+                          </TableCell>
+
+                          <TableCell component={"th"} scope="row">
+                            {row.lga}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
                 </Table>
               </TableContainer>
             </Paper>
           </Grid>
         </Grid>
+
+        <Paper variant="outlined" sx={{ mx: 4, my: 3, p: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 2,
+            }}
+          >
+            <Box>
+              <Typography>Users</Typography>
+            </Box>
+
+            <Box>
+              <Button
+                variant="contained"
+                disableElevation
+                size="medium"
+                sx={{ textTransform: "capitalize" }}
+                onClick={() => setIsEmailDialogOpen(true)}
+              >
+                New User
+              </Button>
+            </Box>
+          </Box>
+          <UsersTable />
+        </Paper>
 
         <ResetPassword
           isOpen={isPasswordDialogOpen}
@@ -376,6 +623,11 @@ export const Settings = () => {
           onClose={() => {
             setIsEmailDialogOpen(false);
           }}
+        />
+
+        <Location
+          isOpen={isLocationDialogOpen}
+          onClose={() => setIsLocationDialogOpen(false)}
         />
       </Box>
     </AdminLayout>

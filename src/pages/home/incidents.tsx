@@ -372,7 +372,7 @@ export const Incidents = () => {
               >
                 <Button
                   variant="contained"
-                  type="type"
+                  type="submit"
                   disableElevation
                   sx={{ marginTop: 2.5, textTransform: "capitalize" }}
                 >
@@ -442,6 +442,9 @@ export const Incidents = () => {
                           <Button
                             size="small"
                             sx={{ textTransform: "capitalize" }}
+                            onClick={() =>
+                              navigate(`/home/incidents/${row.id}`)
+                            }
                           >
                             View
                           </Button>
