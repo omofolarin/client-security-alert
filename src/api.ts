@@ -237,6 +237,13 @@ export const appApi = createApi({
       }),
     }),
 
+    dismissIncident: build.mutation<{}, {}>({
+      query: ({ id }) => ({
+        url: `/company/incident/${id}/undo-approve`,
+        method: "GET",
+      }),
+    }),
+
     fetchCompanyUsers: build.query<{}, LoginReqBody>({
       query: () => ({
         url: "/profile/company/view-users",
@@ -288,6 +295,7 @@ export const {
   useAddUserLocationMutation,
   useFetchUserLocationQuery,
   useFetchIncidentDetailsQuery,
+  useDismissIncidentMutation,
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {

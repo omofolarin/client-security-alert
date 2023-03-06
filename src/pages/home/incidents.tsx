@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import {
   useApproveIncidentMutation,
+  useDismissIncidentMutation,
   useFetchIncidentNatureQuery,
   useFetchIncidentTypesQuery,
   useFetchIncidentsMutation,
@@ -74,7 +75,7 @@ export const Incidents = () => {
   const { data: fetchIncidentNatures, ...fetchedIncidentNaturesState } =
     useFetchIncidentNatureQuery("incidentNature");
   const [approveIncident, approveIncidentResult] = useApproveIncidentMutation();
-
+  const [dismissIncident, dismissIncidentResult] = useDismissIncidentMutation();
   const { authState } = useAuth();
   const [incidents, setIncidents] = React.useState([]);
   const [states, setStates] = React.useState([]);
@@ -193,7 +194,26 @@ export const Incidents = () => {
         position: toast.POSITION.TOP_CENTER,
       });
     }
-  }, [approveIncidentResult.isSuccess, approveIncidentResult.isError]);
+
+    if (dismissIncidentResult.isSuccess) {
+      (async () => {
+        const d = fetchedIncidentsState.data;
+        setIncidents(d.data?.data ?? []);
+      })();
+      toast.success("Incident has been dismissed", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } else if (dismissIncidentResult.isError) {
+      toast.error("Error dismissing incident", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [
+    approveIncidentResult.isSuccess,
+    approveIncidentResult.isError,
+    dismissIncidentResult.isError,
+    dismissIncidentResult.isSuccess,
+  ]);
 
   const lgaInput = register("lga");
   const stateInput = register("state");
@@ -456,6 +476,9 @@ export const Incidents = () => {
                             <Button
                               size="small"
                               sx={{ textTransform: "capitalize" }}
+                              onClick={async () => {
+                                await dismissIncident({ id: row.id });
+                              }}
                             >
                               Dismiss
                             </Button>
