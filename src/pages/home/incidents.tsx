@@ -183,8 +183,7 @@ export const Incidents = () => {
   React.useEffect(() => {
     if (approveIncidentResult.isSuccess) {
       (async () => {
-        const d = fetchedIncidentsState.data;
-        setIncidents(d.data?.data ?? []);
+        await fetchedIncident({});
       })();
       toast.success("Incident has been approved", {
         position: toast.POSITION.TOP_CENTER,
@@ -197,8 +196,7 @@ export const Incidents = () => {
 
     if (dismissIncidentResult.isSuccess) {
       (async () => {
-        const d = fetchedIncidentsState.data;
-        setIncidents(d.data?.data ?? []);
+        await fetchedIncident({});
       })();
       toast.success("Incident has been dismissed", {
         position: toast.POSITION.TOP_CENTER,
