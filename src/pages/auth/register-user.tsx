@@ -41,7 +41,7 @@ export const RegisterUser = () => {
   });
   const [userSignUp, result] = useUserSignUpMutation();
   const [hidePassword, setHidePassword] = React.useState(true);
-  const [, setSessionEmail] = useLocalStorage<string | null>(
+  const { setValue: setSessionEmail } = useLocalStorage<string | null>(
     "session-email",
     null
   );
