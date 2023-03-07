@@ -6,7 +6,7 @@ interface LoginResponse {}
 export const customApi = createApi({
   reducerPath: "customApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://174.138.9.133/",
+    baseUrl: "https://aquiline.workaport.com/",
 
     prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
@@ -67,7 +67,7 @@ export const {
 export const appApi = createApi({
   reducerPath: "appApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://174.138.9.133/api/v1/",
+    baseUrl: "https://aquiline.workaport.com/api/v1/",
     prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
       console.log({ token });
