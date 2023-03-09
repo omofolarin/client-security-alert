@@ -395,7 +395,7 @@ const AddRole = ({ isOpen, onClose }) => {
 };
 
 export const Settings = () => {
-  const [uploadKyc, result] = useSubmitKycMutation();
+  const [uploadKyc, kycResult] = useSubmitKycMutation();
   const { data: userProfile, ...userProfileState } =
     useFetchUserProfileQuery("userProfile");
   const { data: companyProfile, ...companyProfileState } =
@@ -494,7 +494,9 @@ export const Settings = () => {
   const onSubmitUpload = async (values) => {
     console.log({ values });
     const { file } = values;
-    await uploadKyc(file[0]);
+    const formData = new FormData();
+    formData.append("data", file[0]);
+    await uploadKyc(formData);
   };
 
   return (

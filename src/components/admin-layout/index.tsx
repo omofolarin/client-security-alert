@@ -166,8 +166,8 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
       <List sx={{ px: 0 }}>
         {[
           {
-            title: "Packages",
-            url: "packages",
+            title: "Subscriptions",
+            url: "subscriptions",
             icon: <CardMembershipOutlined fontSize="small" />,
           },
           {

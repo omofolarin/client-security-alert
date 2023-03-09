@@ -92,7 +92,7 @@ export const router = createBrowserRouter(
     },
 
     {
-      path: "/home/packages",
+      path: "/home/subscriptions",
       element: <Packages />,
     },
   ],

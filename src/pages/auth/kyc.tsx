@@ -40,7 +40,7 @@ export const Kyc = () => {
 
   const onSubmit = async (data: FormData) => {
     const formData = new FormData();
-    formData.append("file", data.file[0]);
+    formData.append("data", data.file[0]);
 
     await uploadKyc(uploadKyc);
     console.log({ data });
