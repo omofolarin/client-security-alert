@@ -51,66 +51,6 @@ import { useForm } from "react-hook-form";
 
 const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
 
-const AddEmail = ({ isOpen, onClose }) => {
-  const { register, handleSubmit } = useForm();
-  const [addUser, result] = useAddUserMutation();
-
-  React.useEffect(() => {
-    if (result.isSuccess) {
-      onClose();
-      toast.success("User added successful", {
-        position: toast.POSITION.TOP_CENTER,
-      });
-    } else if (result.isError) {
-      toast.error(`Failed to add user: failed: ${parseErrorMessage(result)}`, {
-        position: toast.POSITION.TOP_CENTER,
-      });
-    }
-  }, [result.isError, result.isSuccess, result?.data]);
-
-  const onSubmit = async (value) => {
-    await addUser(value);
-  };
-
-  return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      aria-labelledby={"addUserToCompany"}
-      fullScreen
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogTitle id={"addUserToCompany"} sx={{ textAlign: "center" }}>
-          Add User
-        </DialogTitle>
-        <DialogContent sx={{ maxWidth: "400px", marginX: "auto" }}>
-          <Stack spacing={2}>
-            <TextInput label="Email" id="email" {...register("email")} />
-
-            <TextInput label="Role" id="role" {...register("role")} />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ maxWidth: "400px", marginX: "auto", paddingX: 3 }}>
-          <Stack spacing={2} direction="row">
-            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
-              Cancel
-            </Button>
-
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ textTransform: "capitalize" }}
-              disableElevation
-            >
-              Submit
-            </Button>
-          </Stack>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
-
 const ResetPassword = ({ isOpen, onClose }) => {
   const [resetPassword, result] = useResetPasswordMutation();
   const { handleSubmit, register } = useForm();
@@ -351,49 +291,6 @@ const Location = ({ isOpen, onClose }) => {
   );
 };
 
-const AddRole = ({ isOpen, onClose }) => {
-  const { register } = useForm();
-  return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      aria-labelledby={"add-role"}
-      fullScreen
-    >
-      <form>
-        <DialogTitle id={"add-role"} sx={{ textAlign: "center" }}>
-          Add role
-        </DialogTitle>
-        <DialogContent sx={{ maxWidth: "400px", marginX: "auto" }}>
-          <Stack spacing={2}>
-            <TextInput label="Name" id="name" {...register("name")} />
-            <TextInput
-              label="Permissions"
-              id="permissions"
-              {...register("permission")}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ maxWidth: "400px", marginX: "auto", paddingX: 3 }}>
-          <Stack direction="row" spacing={2}>
-            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
-              Cancel
-            </Button>
-            <Button
-              disableElevation
-              onClick={onClose}
-              variant="contained"
-              sx={{ textTransform: "capitalize" }}
-            >
-              Submit
-            </Button>
-          </Stack>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
-
 export const Settings = () => {
   const [uploadKyc, kycResult] = useSubmitKycMutation();
   const { data: userProfile, ...userProfileState } =
@@ -412,9 +309,7 @@ export const Settings = () => {
   const { watch, register, handleSubmit, setValue, getValues } = useForm({});
   const { updateUserData } = useAuth();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = React.useState(false);
-  const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
   const [isLocationDialogOpen, setIsLocationDialogOpen] = React.useState(false);
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = React.useState(false);
 
   const fileInput = register("file");
 
@@ -734,88 +629,16 @@ export const Settings = () => {
           </Grid>
         </Grid>
 
-        <Paper variant="outlined" sx={{ mx: 4, my: 3, p: 2 }}>
-          <Grid container spacing={3}>
-            <Grid item xl={6}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  py: 2,
-                }}
-              >
-                <Box>
-                  <Typography>Roles</Typography>
-                </Box>
-
-                <Box>
-                  <Button
-                    variant="outlined"
-                    disableElevation
-                    size="medium"
-                    sx={{ textTransform: "capitalize" }}
-                    onClick={() => setIsRoleDialogOpen(true)}
-                  >
-                    New Role
-                  </Button>
-                </Box>
-              </Box>
-              <RolesTable />
-            </Grid>
-            <Grid item xl={6}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  py: 2,
-                }}
-              >
-                <Box>
-                  <Typography>Users</Typography>
-                </Box>
-
-                <Box>
-                  <Button
-                    variant="outlined"
-                    disableElevation
-                    size="medium"
-                    sx={{ textTransform: "capitalize" }}
-                    onClick={() => setIsEmailDialogOpen(true)}
-                  >
-                    New User
-                  </Button>
-                </Box>
-              </Box>
-              <UsersTable />
-            </Grid>
-          </Grid>
-        </Paper>
-
         <ResetPassword
           isOpen={isPasswordDialogOpen}
           onClose={() => {
             setIsPasswordDialogOpen(false);
           }}
         />
-        <AddEmail
-          isOpen={isEmailDialogOpen}
-          onClose={() => {
-            setIsEmailDialogOpen(false);
-          }}
-        />
 
         <Location
           isOpen={isLocationDialogOpen}
           onClose={() => setIsLocationDialogOpen(false)}
-        />
-
-        <AddRole
-          isOpen={isRoleDialogOpen}
-          onClose={() => setIsRoleDialogOpen(false)}
         />
       </Box>
     </AdminLayout>

@@ -230,6 +230,14 @@ export const appApi = createApi({
       }),
     }),
 
+    addRole: build.mutation<{}, {}>({
+      query: (body) => ({
+        url: `/roles/`,
+        method: "POST",
+        body,
+      }),
+    }),
+
     approveIncident: build.mutation<{}, { id: string }>({
       query: ({ id }) => ({
         url: `/company/incident/${id}/approve/`,
@@ -272,6 +280,20 @@ export const appApi = createApi({
         method: "GET",
       }),
     }),
+
+    fetchPermissions: build.query<{}, {}>({
+      query: () => ({
+        url: `/roles/permissions`,
+        method: "GET",
+      }),
+    }),
+
+    fetchRoles: build.query<{}, {}>({
+      query: () => ({
+        url: `/roles/`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -296,6 +318,9 @@ export const {
   useFetchUserLocationQuery,
   useFetchIncidentDetailsQuery,
   useDismissIncidentMutation,
+  useFetchPermissionsQuery,
+  useFetchRolesQuery,
+  useAddRoleMutation,
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {
