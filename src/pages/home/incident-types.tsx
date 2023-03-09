@@ -1,4 +1,8 @@
-import { AdminLayout, IncidentTypeForm } from "../../components";
+import {
+  AdminLayout,
+  IncidentNatureForm,
+  IncidentTypeForm,
+} from "../../components";
 import {
   Box,
   Button,
@@ -22,6 +26,8 @@ import { useNavigate } from "react-router-dom";
 
 export const IncidentTypes = () => {
   const [isIncidentReportModalOpen, setIncidentReportModal] =
+    React.useState(false);
+  const [isIncidentNatureModalOpen, setIncidentNatureModal] =
     React.useState(false);
   const { data: fetchedIncidentTypes, ...fetchedIncidentTypesState } =
     useFetchIncidentTypesQuery("incidentTypes");
@@ -70,14 +76,14 @@ export const IncidentTypes = () => {
                 sx={{ textTransform: "capitalize" }}
                 onClick={() => navigate("/home/incidents/create")}
               >
-                New Incident Type
+                New Incident Report
               </Button>
 
               <Button
                 variant="contained"
                 disableElevation
                 sx={{ textTransform: "capitalize" }}
-                onClick={() => setIncidentReportModal(true)}
+                onClick={() => setIncidentNatureModal(true)}
               >
                 New Incident Nature
               </Button>
@@ -88,7 +94,7 @@ export const IncidentTypes = () => {
                 sx={{ textTransform: "capitalize" }}
                 onClick={() => setIncidentReportModal(true)}
               >
-                New Incident Report
+                New Incident Type
               </Button>
             </Stack>
           </Box>
@@ -158,6 +164,11 @@ export const IncidentTypes = () => {
         <IncidentTypeForm
           isOpen={isIncidentReportModalOpen}
           onClose={() => setIncidentReportModal(false)}
+        />
+
+        <IncidentNatureForm
+          isOpen={isIncidentNatureModalOpen}
+          onClose={() => setIncidentNatureModal(false)}
         />
       </Box>
     </AdminLayout>

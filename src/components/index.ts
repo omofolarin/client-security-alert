@@ -6,3 +6,4 @@ export * from "./select";
 export * from "./incident-nature-form";
 export * from "./incident-type-form";
 export * from "./users-table";
+export * from "./roles-table";

@@ -1,8 +1,14 @@
-import { AdminLayout, TextInput, UsersTable } from "../../components";
+import {
+  AdminLayout,
+  RolesTable,
+  TextInput,
+  UsersTable,
+} from "../../components";
 import {
   Autocomplete,
   Box,
   Button,
+  Card,
   Dialog,
   DialogActions,
   DialogContent,
@@ -31,10 +37,12 @@ import {
   useFetchUserLocationQuery,
   useFetchUserProfileQuery,
   useResetPasswordMutation,
+  useSubmitKycMutation,
   useUpdateCompanyProfileMutation,
   useUpdateUserProfileMutation,
 } from "../../api";
 
+import { FileUploadOutlined } from "@mui/icons-material";
 import React from "react";
 import capitalize from "lodash.capitalize";
 import { toast } from "react-toastify";
@@ -69,15 +77,20 @@ const AddEmail = ({ isOpen, onClose }) => {
       open={isOpen}
       onClose={onClose}
       aria-labelledby={"addUserToCompany"}
+      fullScreen
     >
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogTitle id={"addUserToCompany"}>Add User</DialogTitle>
-        <DialogContent sx={{ minWidth: "400px" }}>
-          <Stack>
+        <DialogTitle id={"addUserToCompany"} sx={{ textAlign: "center" }}>
+          Add User
+        </DialogTitle>
+        <DialogContent sx={{ maxWidth: "400px", marginX: "auto" }}>
+          <Stack spacing={2}>
             <TextInput label="Email" id="email" {...register("email")} />
+
+            <TextInput label="Role" id="role" {...register("role")} />
           </Stack>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ maxWidth: "400px", marginX: "auto", paddingX: 3 }}>
           <Stack spacing={2} direction="row">
             <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
               Cancel
@@ -247,10 +260,17 @@ const Location = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} aria-labelledby={"user-location"}>
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby={"user-location"}
+      fullScreen
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogTitle id={"user-location"}>Add location</DialogTitle>
-        <DialogContent sx={{ minWidth: "400px" }}>
+        <DialogTitle id={"user-location"} textAlign="center">
+          Add location
+        </DialogTitle>
+        <DialogContent sx={{ maxWidth: "400px", mx: "auto" }}>
           <Stack spacing={2}>
             <TextInput label="Name" id="name" {...register("name")} />
             <TextInput label="Address" id="address" {...register("address")} />
@@ -310,7 +330,7 @@ const Location = ({ isOpen, onClose }) => {
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ mx: 2 }}>
+        <DialogActions sx={{ maxWidth: "400px", mx: "auto", px: 3 }}>
           <Stack spacing={2} direction="row">
             <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
               Cancel
@@ -331,7 +351,51 @@ const Location = ({ isOpen, onClose }) => {
   );
 };
 
+const AddRole = ({ isOpen, onClose }) => {
+  const { register } = useForm();
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      aria-labelledby={"add-role"}
+      fullScreen
+    >
+      <form>
+        <DialogTitle id={"add-role"} sx={{ textAlign: "center" }}>
+          Add role
+        </DialogTitle>
+        <DialogContent sx={{ maxWidth: "400px", marginX: "auto" }}>
+          <Stack spacing={2}>
+            <TextInput label="Name" id="name" {...register("name")} />
+            <TextInput
+              label="Permissions"
+              id="permissions"
+              {...register("permission")}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ maxWidth: "400px", marginX: "auto", paddingX: 3 }}>
+          <Stack direction="row" spacing={2}>
+            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
+              Cancel
+            </Button>
+            <Button
+              disableElevation
+              onClick={onClose}
+              variant="contained"
+              sx={{ textTransform: "capitalize" }}
+            >
+              Submit
+            </Button>
+          </Stack>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
 export const Settings = () => {
+  const [uploadKyc, result] = useSubmitKycMutation();
   const { data: userProfile, ...userProfileState } =
     useFetchUserProfileQuery("userProfile");
   const { data: companyProfile, ...companyProfileState } =
@@ -345,11 +409,14 @@ export const Settings = () => {
     useFetchCompanyUsersQuery({});
   const { data: fetchUserLocation, ...fetchUserLocationState } =
     useFetchUserLocationQuery({});
-  const { register, handleSubmit, setValue, getValues } = useForm({});
+  const { watch, register, handleSubmit, setValue, getValues } = useForm({});
   const { updateUserData } = useAuth();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = React.useState(false);
   const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
   const [isLocationDialogOpen, setIsLocationDialogOpen] = React.useState(false);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = React.useState(false);
+
+  const fileInput = register("file");
 
   console.log({ companyUsers });
   React.useEffect(() => {
@@ -418,10 +485,16 @@ export const Settings = () => {
     company_name: any;
     industry: any;
   }) => {
-    const { first_name, last_name, company_name, industry } = value;
+    const { file, first_name, last_name, company_name, industry } = value;
     console.log({ value });
     await updateUserProfile({ first_name, last_name });
     await updateCompanyProfile({ company_name, industry });
+  };
+
+  const onSubmitUpload = async (values) => {
+    console.log({ values });
+    const { file } = values;
+    await uploadKyc(file[0]);
   };
 
   return (
@@ -458,18 +531,11 @@ export const Settings = () => {
                 <Typography>Profile Information</Typography>
                 <Stack direction="row" spacing={1}>
                   <Button
+                    variant="outlined"
                     sx={{ textTransform: "capitalize" }}
                     onClick={() => setIsPasswordDialogOpen(true)}
                   >
                     Change Password
-                  </Button>
-
-                  <Divider orientation="vertical" />
-                  <Button
-                    sx={{ textTransform: "capitalize" }}
-                    onClick={() => setIsEmailDialogOpen(true)}
-                  >
-                    Add new user
                   </Button>
                 </Stack>
               </Box>
@@ -500,17 +566,99 @@ export const Settings = () => {
                     {...register("industry")}
                   />
 
-                  <Box>
+                  <Box sx={{ alignSelf: "flex-end" }}>
                     <Button
                       variant="contained"
                       type="submit"
-                      sx={{ textTransform: "capitalize" }}
+                      sx={{
+                        textTransform: "capitalize",
+                      }}
                       disableElevation
                     >
                       Submit
                     </Button>
                   </Box>
                 </Stack>
+              </form>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography>Upload KYC</Typography>
+              </Box>
+
+              <form onSubmit={handleSubmit(onSubmitUpload)}>
+                <Box sx={{ marginY: 4 }}>
+                  <Stack spacing={2.5}>
+                    <label htmlFor="contained-button-file">
+                      <input
+                        accept="file"
+                        id="contained-button-file"
+                        multiple
+                        type="file"
+                        style={{ display: "none" }}
+                        {...fileInput}
+                      />
+                      <Card
+                        variant="outlined"
+                        sx={Object.assign(
+                          {},
+                          {
+                            borderStyle: "dashed",
+                            paddingX: 2,
+                            paddingY: 1,
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+
+                            "&:hover": {
+                              bgcolor: "Highlight",
+                              cursor: "pointer",
+                            },
+                          }
+                        )}
+                      >
+                        <FileUploadOutlined color="action" />
+                        {!watch("file")?.[0] && (
+                          <Box sx={{ paddingX: 2 }}>
+                            <Typography>
+                              Upload identification document
+                            </Typography>
+                            <Typography fontSize={"14px"} color="GrayText">
+                              Valid identification document are: ID card,
+                              Passport, CAC
+                            </Typography>
+                          </Box>
+                        )}
+                        {watch("file")?.[0] && (
+                          <Box sx={{ paddingX: 2 }}>
+                            <Typography>{watch("file")?.[0]?.name}</Typography>
+                            <Typography fontSize={"14px"} color="GrayText">
+                              {watch("file")?.[0]?.type}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Card>
+                    </label>
+
+                    <Box sx={{ marginY: 5, alignSelf: "flex-end" }}>
+                      <Button
+                        disableElevation
+                        variant="contained"
+                        sx={{ textTransform: "capitalize" }}
+                        disabled={!watch("file")}
+                        type="submit"
+                      >
+                        Upload kyc
+                      </Button>
+                    </Box>
+                  </Stack>
+                </Box>
               </form>
             </Paper>
           </Grid>
@@ -534,7 +682,7 @@ export const Settings = () => {
 
                 <Box>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     disableElevation
                     size="medium"
                     sx={{ textTransform: "capitalize" }}
@@ -544,6 +692,7 @@ export const Settings = () => {
                   </Button>
                 </Box>
               </Box>
+
               <TableContainer component={OutlinePaper} sx={{ marginY: 2 }}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                   <TableHead>
@@ -584,32 +733,64 @@ export const Settings = () => {
         </Grid>
 
         <Paper variant="outlined" sx={{ mx: 4, my: 3, p: 2 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              py: 2,
-            }}
-          >
-            <Box>
-              <Typography>Users</Typography>
-            </Box>
-
-            <Box>
-              <Button
-                variant="contained"
-                disableElevation
-                size="medium"
-                sx={{ textTransform: "capitalize" }}
-                onClick={() => setIsEmailDialogOpen(true)}
+          <Grid container spacing={3}>
+            <Grid item xl={6}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  py: 2,
+                }}
               >
-                New User
-              </Button>
-            </Box>
-          </Box>
-          <UsersTable />
+                <Box>
+                  <Typography>Roles</Typography>
+                </Box>
+
+                <Box>
+                  <Button
+                    variant="outlined"
+                    disableElevation
+                    size="medium"
+                    sx={{ textTransform: "capitalize" }}
+                    onClick={() => setIsRoleDialogOpen(true)}
+                  >
+                    New Role
+                  </Button>
+                </Box>
+              </Box>
+              <RolesTable />
+            </Grid>
+            <Grid item xl={6}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  py: 2,
+                }}
+              >
+                <Box>
+                  <Typography>Users</Typography>
+                </Box>
+
+                <Box>
+                  <Button
+                    variant="outlined"
+                    disableElevation
+                    size="medium"
+                    sx={{ textTransform: "capitalize" }}
+                    onClick={() => setIsEmailDialogOpen(true)}
+                  >
+                    New User
+                  </Button>
+                </Box>
+              </Box>
+              <UsersTable />
+            </Grid>
+          </Grid>
         </Paper>
 
         <ResetPassword
@@ -628,6 +809,11 @@ export const Settings = () => {
         <Location
           isOpen={isLocationDialogOpen}
           onClose={() => setIsLocationDialogOpen(false)}
+        />
+
+        <AddRole
+          isOpen={isRoleDialogOpen}
+          onClose={() => setIsRoleDialogOpen(false)}
         />
       </Box>
     </AdminLayout>
