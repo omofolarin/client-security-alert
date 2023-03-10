@@ -175,11 +175,7 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
             url: "incidents",
             icon: <EmojiFlagsOutlined fontSize="small" />,
           },
-          {
-            title: "Roles",
-            url: "roles",
-            icon: <Groups2Outlined fontSize="medium" />,
-          },
+
           {
             title: "Tickets",
             url: "tickets",
@@ -189,6 +185,16 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
             title: "Settings",
             url: "settings",
             icon: <SettingsOutlined fontSize="small" />,
+          },
+          {
+            title: "Roles",
+            url: "roles",
+            icon: <Groups2Outlined fontSize="medium" />,
+          },
+          {
+            title: "Users",
+            url: "users",
+            icon: <Groups2Outlined fontSize="medium" />,
           },
         ].map((item, index = 0) => {
           return (

@@ -14,6 +14,7 @@ import {
   Roles,
   Settings,
   Tickets,
+  Users,
   ViewIncident,
 } from "./pages";
 
@@ -94,6 +95,11 @@ export const router = createBrowserRouter(
     {
       path: "/home/subscriptions",
       element: <Packages />,
+    },
+
+    {
+      path: "/home/users",
+      element: <Users />,
     },
   ],
   {}

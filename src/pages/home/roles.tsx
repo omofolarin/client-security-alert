@@ -110,142 +110,54 @@ const AddRole = ({ isOpen, onClose }) => {
   );
 };
 
-const AddEmail = ({ isOpen, onClose }) => {
-  const { register, handleSubmit } = useForm();
-  const [addUser, result] = useAddUserMutation();
-
-  React.useEffect(() => {
-    if (result.isSuccess) {
-      onClose();
-      toast.success("User added successful", {
-        position: toast.POSITION.TOP_CENTER,
-      });
-    } else if (result.isError) {
-      toast.error(`Failed to add user: failed: ${parseErrorMessage(result)}`, {
-        position: toast.POSITION.TOP_CENTER,
-      });
-    }
-  }, [result.isError, result.isSuccess, result?.data]);
-
-  const onSubmit = async (value) => {
-    await addUser(value);
-  };
-
-  return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      aria-labelledby={"addUserToCompany"}
-      fullScreen
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogTitle id={"addUserToCompany"} sx={{ textAlign: "center" }}>
-          Add User
-        </DialogTitle>
-        <DialogContent sx={{ maxWidth: "400px", marginX: "auto" }}>
-          <Stack spacing={2}>
-            <TextInput label="Email" id="email" {...register("email")} />
-
-            <TextInput label="Role" id="role" {...register("role")} />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ maxWidth: "400px", marginX: "auto", paddingX: 3 }}>
-          <Stack spacing={2} direction="row">
-            <Button onClick={onClose} sx={{ textTransform: "capitalize" }}>
-              Cancel
-            </Button>
-
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ textTransform: "capitalize" }}
-              disableElevation
-            >
-              Submit
-            </Button>
-          </Stack>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
-
 export const Roles = () => {
   const { data: fetchRoles, ...fetchRolesResult } = useFetchRolesQuery({});
-  const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
+
   const [isRoleDialogOpen, setIsRoleDialogOpen] = React.useState(false);
 
   return (
     <AdminLayout>
-      <Paper variant="outlined" sx={{ mx: 4, my: 3, p: 2 }}>
-        <Grid container spacing={3}>
-          <Grid item xl={6}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                py: 2,
-              }}
-            >
-              <Box>
-                <Typography>Roles</Typography>
-              </Box>
+      <Box sx={{ bgcolor: "rgb(250, 250, 251)", minHeight: "100vh" }}>
+        <Typography sx={{ paddingX: 4, paddingY: 2, fontSize: "0.9rem" }}>
+          Home / Roles
+        </Typography>
 
-              <Box>
-                <Button
-                  variant="outlined"
-                  disableElevation
-                  size="medium"
-                  sx={{ textTransform: "capitalize" }}
-                  onClick={() => setIsRoleDialogOpen(true)}
-                >
-                  New Role
-                </Button>
-              </Box>
+        <Paper
+          variant="outlined"
+          sx={{ marginX: 4, marginY: 0, paddingX: 2, paddingY: 4 }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 2,
+            }}
+          >
+            <Box>
+              <Typography>Roles</Typography>
             </Box>
-            <RolesTable />
-          </Grid>
-          <Grid item xl={6}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                py: 2,
-              }}
-            >
-              <Box>
-                <Typography>Users</Typography>
-              </Box>
 
-              <Box>
-                <Button
-                  variant="outlined"
-                  disableElevation
-                  size="medium"
-                  sx={{ textTransform: "capitalize" }}
-                  onClick={() => setIsEmailDialogOpen(true)}
-                >
-                  New User
-                </Button>
-              </Box>
+            <Box>
+              <Button
+                variant="outlined"
+                disableElevation
+                size="medium"
+                sx={{ textTransform: "capitalize" }}
+                onClick={() => setIsRoleDialogOpen(true)}
+              >
+                New Role
+              </Button>
             </Box>
-            <UsersTable />
-          </Grid>
-        </Grid>
-      </Paper>
+          </Box>
+
+          <RolesTable />
+        </Paper>
+      </Box>
       <AddRole
         isOpen={isRoleDialogOpen}
         onClose={() => setIsRoleDialogOpen(false)}
-      />
-      <AddEmail
-        isOpen={isEmailDialogOpen}
-        onClose={() => {
-          setIsEmailDialogOpen(false);
-        }}
       />
     </AdminLayout>
   );
