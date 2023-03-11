@@ -10,19 +10,20 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 
 import capitalize from "lodash.capitalize";
-import { useFetchCompanyUsersQuery } from "../api";
+import { useFetchRolesQuery } from "../api";
 
 const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
 
 export const RolesTable = () => {
-  const { data: fetchCompanyUsers } = useFetchCompanyUsersQuery({});
-  const companyUsers = fetchCompanyUsers?.data?.users ?? [];
+  const { data: fetchRoles } = useFetchRolesQuery({});
+  const roles = fetchRoles?.data ?? [];
 
   return (
-    <Box>
+    <Box sx={{ marginBottom: 16 }}>
       <TableContainer component={OutlinePaper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -38,12 +39,12 @@ export const RolesTable = () => {
               </TableCell>
 
               <TableCell>Name</TableCell>
-              <TableCell align="center">Permissions</TableCell>
+              <TableCell align="left">Permissions</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {companyUsers.map((row, i) => {
+            {roles.map((row, i) => {
               return (
                 <TableRow
                   key={i.toString()}
@@ -53,18 +54,20 @@ export const RolesTable = () => {
                     <Checkbox />
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {row.email}
+                    {row.name}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {row.first_name}
+                    <Typography variant="caption">
+                      {(row.permissions ?? []).join(", ")}
+                    </Typography>
                   </TableCell>
 
                   <TableCell align="center">
                     <Stack direction="row" spacing={1}>
                       <Button size="small" sx={{ textTransform: "capitalize" }}>
-                        View
+                        Update
                       </Button>
-                      <Divider orientation="vertical" sx={{ height: "2em" }} />
+                      {/* <Divider orientation="vertical" sx={{ height: "2em" }} /> */}
                     </Stack>
                   </TableCell>
                 </TableRow>

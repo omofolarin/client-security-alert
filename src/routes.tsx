@@ -18,6 +18,8 @@ import {
   ViewIncident,
 } from "./pages";
 
+import { CreateInvoice } from "./pages/home/create-invoice";
+import { CreateSubscription } from "./pages/home/create-subscription";
 import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter(
@@ -80,6 +82,16 @@ export const router = createBrowserRouter(
     {
       path: "/home/incidents/create",
       element: <CreateIncident />,
+    },
+
+    {
+      path: "/home/subscriptions/create",
+      element: <CreateSubscription />,
+    },
+
+    {
+      path: "/home/invoices/create",
+      element: <CreateInvoice />,
     },
 
     {

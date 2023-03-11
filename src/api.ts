@@ -232,7 +232,7 @@ export const appApi = createApi({
 
     addRole: build.mutation<{}, {}>({
       query: (body) => ({
-        url: `/roles/`,
+        url: `/roles/roles/`,
         method: "POST",
         body,
       }),
@@ -283,14 +283,14 @@ export const appApi = createApi({
 
     fetchPermissions: build.query<{}, {}>({
       query: () => ({
-        url: `/roles/permissions`,
+        url: `/roles/roles/permissions`,
         method: "GET",
       }),
     }),
 
     fetchRoles: build.query<{}, {}>({
       query: () => ({
-        url: `/roles/`,
+        url: `/roles/roles/`,
         method: "GET",
       }),
     }),

@@ -1,21 +1,38 @@
-import { Box, Stack } from "@mui/system";
+import { Box, Stack, SxProps } from "@mui/system";
 import {
   Button,
   Checkbox,
   Divider,
   Paper,
+  PaperClasses,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Theme,
 } from "@mui/material";
+import { ElementType, ReactNode } from "react";
 
+import { CommonProps } from "@mui/material/OverridableComponent";
 import capitalize from "lodash.capitalize";
 import { useFetchCompanyUsersQuery } from "../api";
 
-const OutlinePaper = (props) => <Paper {...props} variant="outlined" />;
+const OutlinePaper = (
+  props: JSX.IntrinsicAttributes & { component: ElementType<any> } & {
+    children?: ReactNode;
+    classes?: Partial<PaperClasses> | undefined;
+    elevation?: number | undefined;
+    square?: boolean | undefined;
+    sx?: SxProps<Theme> | undefined;
+    variant?: "elevation" | "outlined" | undefined;
+  } & CommonProps &
+    Omit<
+      any,
+      keyof CommonProps | "children" | "sx" | "elevation" | "variant" | "square"
+    >
+) => <Paper {...props} variant="outlined" />;
 
 export const UsersTable = () => {
   const { data: fetchCompanyUsers } = useFetchCompanyUsersQuery({});

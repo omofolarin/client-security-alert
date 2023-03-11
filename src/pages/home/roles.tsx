@@ -37,11 +37,24 @@ const AddRole = ({ isOpen, onClose }) => {
 
   const permissions = fetchPermission?.data ?? [];
   const [addRole, addRoleResult] = useAddRoleMutation();
+
+  React.useEffect(() => {
+    if (addRoleResult.isSuccess) {
+      onClose();
+      toast.success("Role created successful", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } else if (addRoleResult.isError) {
+      toast.error(parseErrorMessage(result), {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
+  }, [addRoleResult.isSuccess, addRoleResult.isError]);
+
   const onSubmit = async (values) => {
-    console.log({ values });
     await addRole({
       name: values.name,
-      permissions: values?.permissions.map((d) => d.value),
+      permissions: values?.permissions.map((d) => d.id),
     });
   };
 
@@ -77,6 +90,7 @@ const AddRole = ({ isOpen, onClose }) => {
               options={permissions.map((d) => ({
                 label: capitalize(d.name ?? ""),
                 value: d.name,
+                id: d.id,
               }))}
               multiple
               filterSelectedOptions
@@ -157,7 +171,10 @@ export const Roles = () => {
       </Box>
       <AddRole
         isOpen={isRoleDialogOpen}
-        onClose={() => setIsRoleDialogOpen(false)}
+        onClose={async () => {
+          setIsRoleDialogOpen(false);
+          fetchRolesResult.refetch();
+        }}
       />
     </AdminLayout>
   );

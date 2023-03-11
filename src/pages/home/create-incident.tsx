@@ -264,12 +264,12 @@ export const CreateIncident = () => {
                 <Stack spacing={2} direction="row">
                   <Box sx={{ width: "50%" }}>
                     <SelectInput
-                      id="incidentType"
-                      label="Incident type"
-                      error={Boolean(errors["incident_type"])}
-                      helpText={capitalize(errors["incident_type"]?.message)}
+                      id="threatLevel"
+                      label="Threat level"
+                      error={Boolean(errors["threat_level"])}
+                      helpText={capitalize(errors["threat_level"]?.message)}
                       onChange={(e, newValue) =>
-                        setValue("incident_type", newValue, {
+                        setValue("threat_level", newValue, {
                           shouldValidate: true,
                         })
                       }
@@ -364,13 +364,31 @@ export const CreateIncident = () => {
                   helpText={capitalize(errors["special_events"]?.message)}
                 />
 
-                <TextInput
-                  id="noOfVictims"
-                  label="No of victims"
-                  {...noVictimsInput}
-                  error={Boolean(errors["number_of_victims"])}
-                  helpText={capitalize(errors["number_of_victims"]?.message)}
-                />
+                <Stack spacing={2} direction="row">
+                  <Box sx={{ width: "50%" }}>
+                    <TextInput
+                      id="noOfVictims"
+                      label="No of victims"
+                      {...noVictimsInput}
+                      error={Boolean(errors["number_of_victims"])}
+                      helpText={capitalize(
+                        errors["number_of_victims"]?.message
+                      )}
+                    />
+                  </Box>
+
+                  <Box sx={{ width: "50%" }}>
+                    <TextInput
+                      id="impact"
+                      label="Impact"
+                      {...noVictimsInput}
+                      error={Boolean(errors["number_of_victims"])}
+                      helpText={capitalize(
+                        errors["number_of_victims"]?.message
+                      )}
+                    />
+                  </Box>
+                </Stack>
 
                 <TextInput
                   id="priorWarnings"
@@ -379,13 +397,27 @@ export const CreateIncident = () => {
                   error={Boolean(errors["prior_warnings"])}
                   helpText={capitalize(errors["prior_warnings"]?.message)}
                 />
-                <TextInput
-                  id="perpetrators"
-                  label="Perpetrators"
-                  {...perpetratorsInput}
-                  error={Boolean(errors["perpetrators"])}
-                  helpText={capitalize(errors["perpetrators"]?.message)}
-                />
+                <Stack spacing={2} direction="row">
+                  <Box sx={{ width: "50%" }}>
+                    <TextInput
+                      id="perpetrators"
+                      label="Perpetrators"
+                      {...perpetratorsInput}
+                      error={Boolean(errors["perpetrators"])}
+                      helpText={capitalize(errors["perpetrators"]?.message)}
+                    />
+                  </Box>
+
+                  <Box sx={{ width: "50%" }}>
+                    <TextInput
+                      id="affectedGroups"
+                      label="Affected groups"
+                      {...perpetratorsInput}
+                      error={Boolean(errors["perpetrators"])}
+                      helpText={capitalize(errors["perpetrators"]?.message)}
+                    />
+                  </Box>
+                </Stack>
 
                 <Stack spacing={2} direction="row">
                   <Box sx={{ width: "50%" }}>
