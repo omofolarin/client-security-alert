@@ -1,49 +1,20 @@
 import * as yup from "yup";
 
-import {
-  AdminLayout,
-  SelectInput,
-  SelectOption,
-  TextInput,
-} from "../../components";
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Card,
-  makeStyles,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import {
-  useAddIncidentMutation,
-  useFetchIncidentNatureQuery,
-  useFetchIncidentTypesQuery,
-  useFetchLgasQuery,
-  useFetchStatesQuery,
-} from "../../api";
-
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { FileUploadOutlined } from "@mui/icons-material";
-import { LoadingButton } from "@mui/lab";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdminLayout, TextInput } from "../../components";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import { useSubmitTicketMutation } from "../../api";
 import React from "react";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import capitalize from "lodash.capitalize";
-import moment from "moment";
-import { toast } from "react-toastify";
-import { useAuth } from "../../hooks";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useAuth } from "../../hooks";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface FormValues {
   name: string;
   email: string;
-  subject: string;
+  title: string;
   message: string;
 }
 
@@ -52,15 +23,16 @@ interface Props {
 }
 
 const schema = yup.object().shape({
-  // name: yup.string().required("Name is required"),
-  // email: yup.string().email("Invalid email").required("Email is required"),
-  subject: yup.string().required("Subject is required"),
+  title: yup.string().required("Subject is required"),
   message: yup.string().required("Message is required"),
+  owner: yup.string().required(),
 });
 interface IncidentForm {
-  subject: string;
-  message: Date;
+  title: string;
+  message: string;
+  owner: string;
 }
+
 export const CreateTicket = () => {
   const {
     watch,
@@ -72,25 +44,39 @@ export const CreateTicket = () => {
     mode: "onChange",
     resolver: yupResolver(schema),
   });
-  // const classes = useStyles();
+  const { authState } = useAuth();
+  const navigate = useNavigate();
 
-  // const onSubmitHandler = handleSubmit((data) => {
-  //   // onSubmit(data);
-  //   console.log(data)
-  // });
+  const [submitTicket, result] = useSubmitTicketMutation();
+
   const messageInput = register("message");
-  const subjectInput = register("subject");
+  const subjectInput = register("title");
+
   const onSubmit = async (v: any) => {
     console.log(v);
+    await submitTicket({
+      ...v,
+      closed: false,
+    });
   };
+  React.useEffect(() => {
+    if (authState?.user?.user_id) {
+      setValue("owner", authState?.user?.user_id);
+    }
+  }, [authState?.user?.user_id]);
+  React.useEffect(() => {
+    if (result.isSuccess) {
+      navigate("/home/tickets");
+      toast.success("Ticket created successfully");
+    }
+  }, [result.isSuccess]);
   return (
     <AdminLayout>
       <Box
         sx={{
           bgcolor: "rgb(250, 250, 251)",
-          //   minHeight: "100vh",
-          //   height: "100%",
           overflowY: "scroll",
+          height: "100%",
         }}
       >
         <Typography sx={{ paddingX: 4, paddingY: 2, fontSize: "0.9rem" }}>
@@ -104,6 +90,9 @@ export const CreateTicket = () => {
             paddingX: 2,
             paddingY: 4,
             marginBottom: 20,
+            width: {
+              md: "60%",
+            },
           }}
         >
           <Box
@@ -114,7 +103,7 @@ export const CreateTicket = () => {
               paddingBottom: 4,
             }}
           >
-            <Typography variant="subtitle1">Create Incident</Typography>
+            <Typography variant="subtitle1">Create Ticket</Typography>
           </Box>
 
           <Box
@@ -127,11 +116,11 @@ export const CreateTicket = () => {
           >
             <form onSubmit={handleSubmit(onSubmit)}>
               <TextInput
-                id="subject"
+                id="title"
                 label="Subject"
                 {...subjectInput}
-                error={Boolean(errors["subject"])}
-                helpText={capitalize(errors["subject"]?.message)}
+                error={Boolean(errors["title"])}
+                helpText={capitalize(errors["title"]?.message)}
               />
               <TextInput
                 id="message"

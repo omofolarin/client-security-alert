@@ -6,7 +6,7 @@ interface LoginResponse {}
 export const customApi = createApi({
   reducerPath: "customApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://aquiline.workaport.com/",
+    baseUrl: "https://aquiline.workaport.com/api/v1/",
 
     prepareHeaders: async (headers) => {
       const token = localStorage.getItem("user_token");
@@ -294,6 +294,19 @@ export const appApi = createApi({
         method: "GET",
       }),
     }),
+    submitTicket: build.mutation<{}, LoginReqBody>({
+      query: (body) => ({
+        url: `/incident/ticket/`,
+        method: "POST",
+        body,
+      }),
+    }),
+    fetchTickets: build.query<{}, {}>({
+      query: () => ({
+        url: `/incident/ticket/`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -321,6 +334,9 @@ export const {
   useFetchPermissionsQuery,
   useFetchRolesQuery,
   useAddRoleMutation,
+  useSubmitTicketMutation,
+ useFetchTicketsQuery,
+
 } = appApi;
 
 export const parseErrorMessage = (result: any) => {

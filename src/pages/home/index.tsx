@@ -714,8 +714,8 @@ export const Dashboard = () => {
               sx={{
                 width: "100%",
                 height: "100%",
-                paddingX: 1.5,
-                paddingY: 1.5,
+                paddingX: 2.5,
+                paddingY: 4.5,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -724,7 +724,7 @@ export const Dashboard = () => {
             >
               <CustomBox>
                 <img
-                  src={"../../../public/map-img.png"}
+                  src={"../../../public/map-img.svg"}
                   alt={"map image"}
                   style={{
                     maxWidth: "100%",
