@@ -253,13 +253,23 @@ export const CreateIncident = () => {
           >
             <form onSubmit={handleSubmit(onSubmit)}>
               <Stack spacing={2}>
-                <TextInput
-                  id="name"
-                  label="Incident name"
-                  {...nameInput}
-                  error={Boolean(errors["name"])}
-                  helpText={capitalize(errors["name"]?.message)}
-                />
+                <SelectInput
+                  id="alertType"
+                  label="Alert type"
+                  onChange={(e, newValue) =>
+                    setValue("alert_type", newValue, {
+                      shouldValidate: true,
+                    })
+                  }
+                  error={Boolean(errors["alert_type"])}
+                  helpText={capitalize(errors["alert_type"]?.message)}
+                >
+                  {incidentNatures.map((d, i) => (
+                    <SelectOption key={i.toString()} value={d.id}>
+                      {capitalize(d.nature)}
+                    </SelectOption>
+                  ))}
+                </SelectInput>
 
                 <Stack spacing={2} direction="row">
                   <Box sx={{ width: "50%" }}>
@@ -531,6 +541,8 @@ export const CreateIncident = () => {
                     variant="contained"
                     type="submit"
                     loading={result.isLoading}
+                    disableElevation
+                    sx={{ textTransform: "capitalize" }}
                   >
                     Submit
                   </LoadingButton>

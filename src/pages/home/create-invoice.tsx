@@ -139,6 +139,7 @@ export const CreateInvoice = () => {
                 <LoadingButton
                   variant="contained"
                   type="submit"
+                  sx={{ textTransform: "capitalize" }}
                   disableElevation
                 >
                   Submit

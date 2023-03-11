@@ -22,6 +22,7 @@ import {
   CardMembershipOutlined,
   EmojiFlagsOutlined,
   Groups2Outlined,
+  HomeOutlined,
   MenuOutlined,
   Notifications,
   NotificationsOutlined,
@@ -165,10 +166,10 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
       </Box>
       <List sx={{ px: 0 }}>
         {[
-           {
+          {
             title: "Home",
             url: "",
-            icon: <CardMembershipOutlined fontSize="small" />,
+            icon: <HomeOutlined fontSize="medium" />,
           },
           {
             title: "Subscriptions",

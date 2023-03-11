@@ -292,6 +292,7 @@ export const CreateSubscription = () => {
                   variant="contained"
                   type="submit"
                   disableElevation
+                  sx={{ textTransform: "capitalize" }}
                 >
                   Submit
                 </LoadingButton>
