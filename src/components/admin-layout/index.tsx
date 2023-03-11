@@ -165,6 +165,11 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
       </Box>
       <List sx={{ px: 0 }}>
         {[
+           {
+            title: "Home",
+            url: "",
+            icon: <CardMembershipOutlined fontSize="small" />,
+          },
           {
             title: "Subscriptions",
             url: "subscriptions",
@@ -195,6 +200,11 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
             title: "Users",
             url: "users",
             icon: <Groups2Outlined fontSize="medium" />,
+          },
+          {
+            title: "Help",
+            url: "create-ticket",
+            icon: <SupportOutlined fontSize="small" />,
           },
         ].map((item, index = 0) => {
           return (

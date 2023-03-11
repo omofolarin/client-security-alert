@@ -18,14 +18,25 @@ import {
   Link,
   Tabs,
   Tab,
+  Divider,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import React from "react";
 import { AdminLayout } from "../../components";
-import { AccessTime, BarChart } from "@mui/icons-material";
+import { AccessTime, BarChart, Image } from "@mui/icons-material";
 import Grid from "@mui/material/Grid";
 import { TabContext, TabPanel } from "@mui/lab";
 
+
 export const Dashboard = () => {
+  const CustomBox = styled(Box)({
+    maxWidth: "100%",
+    maxHeight: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 3,
+  }) as typeof Box;
   const theme = useTheme();
   const [value, setValue] = React.useState("1");
 
@@ -255,13 +266,13 @@ export const Dashboard = () => {
           </Grid>
         </Box>
 
-        <Box>
+        <Box sx={{ paddingBottom: 3 }}>
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
             sx={{ paddingY: 2 }}
           >
-            {/* Recent Incidents */}
+            {/* Recent Actions */}
             <Card
               variant="outlined"
               sx={{
@@ -315,6 +326,7 @@ export const Dashboard = () => {
                       justifyContent="space-between"
                       alignItems="start"
                       spacing={2}
+                      marginBottom={1}
                     >
                       <Box>
                         <Typography
@@ -348,13 +360,14 @@ export const Dashboard = () => {
                         <Typography fontSize={13}>Ongoing</Typography>
                       </Box>
                     </Stack>
+                    <Divider />
 
-                    <hr />
                     <Stack
                       direction="row"
                       justifyContent="space-between"
                       alignItems="center"
                       spacing={2}
+                      marginTop={1}
                     >
                       <Box>
                         <Typography
@@ -409,6 +422,7 @@ export const Dashboard = () => {
                       justifyContent="space-between"
                       alignItems="start"
                       spacing={2}
+                      marginBottom={1}
                     >
                       <Box>
                         <Typography
@@ -442,13 +456,14 @@ export const Dashboard = () => {
                         <Typography fontSize={13}>Ongoing</Typography>
                       </Box>
                     </Stack>
+                    <Divider />
 
-                    <hr />
                     <Stack
                       direction="row"
                       justifyContent="space-between"
                       alignItems="center"
                       spacing={2}
+                      marginTop={1}
                     >
                       <Box>
                         <Typography
@@ -485,6 +500,7 @@ export const Dashboard = () => {
                     </Stack>
                   </Card>
                 </TabPanel>
+
                 <TabPanel value="2">
                   <Stack
                     direction="row"
@@ -513,46 +529,16 @@ export const Dashboard = () => {
                       marginBottom: 2,
                     }}
                   >
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="start"
-                      spacing={2}
-                    >
-                      <Box>
-                        <Typography
-                          variant="h6"
-                          fontWeight={"700"}
-                          fontSize={"17px"}
-                          color="#18181B"
-                        >
-                          Protest
-                        </Typography>
+                    <Box marginBottom={1.5}>
+                      <Typography
+                        color="GrayText"
+                        fontSize={"13px"}
+                        textAlign="right"
+                      >
+                        3 hours ago
+                      </Typography>
+                    </Box>
 
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "7px",
-                          }}
-                        >
-                          <AccessTime
-                            sx={{
-                              color: "GrayText",
-                              fontSize: "16px",
-                            }}
-                          />
-                          <Typography color="GrayText" fontSize={"13px"}>
-                            3 hours ago
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Box>
-                        <Typography fontSize={13}>Ongoing</Typography>
-                      </Box>
-                    </Stack>
-
-                    <hr />
                     <Stack
                       direction="row"
                       justifyContent="space-between"
@@ -565,14 +551,14 @@ export const Dashboard = () => {
                           color="#18181B"
                           fontWeight={"700"}
                         >
-                          Ikota
+                          Rose Helen
                         </Typography>
                         <Typography
                           variant="body1"
                           color="GrayText"
                           fontSize={"13px"}
                         >
-                          State
+                          Customer
                         </Typography>
                       </Box>
                       <Box>
@@ -581,19 +567,18 @@ export const Dashboard = () => {
                           color="#18181B"
                           fontWeight={"700"}
                         >
-                          Shopping Mall
+                          Protest
                         </Typography>
                         <Typography
                           variant="body1"
                           color="GrayText"
                           fontSize={"13px"}
                         >
-                          LGA
+                          Subscription
                         </Typography>
                       </Box>
                     </Stack>
                   </Card>
-
                   <Card
                     variant="outlined"
                     sx={{
@@ -607,46 +592,16 @@ export const Dashboard = () => {
                       marginBottom: 2,
                     }}
                   >
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="start"
-                      spacing={2}
-                    >
-                      <Box>
-                        <Typography
-                          variant="h6"
-                          fontWeight={"700"}
-                          fontSize={"17px"}
-                          color="#18181B"
-                        >
-                          Protest
-                        </Typography>
+                    <Box marginBottom={1.5}>
+                      <Typography
+                        color="GrayText"
+                        fontSize={"13px"}
+                        textAlign="right"
+                      >
+                        3 hours ago
+                      </Typography>
+                    </Box>
 
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "7px",
-                          }}
-                        >
-                          <AccessTime
-                            sx={{
-                              color: "GrayText",
-                              fontSize: "16px",
-                            }}
-                          />
-                          <Typography color="GrayText" fontSize={"13px"}>
-                            3 hours ago
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Box>
-                        <Typography fontSize={13}>Ongoing</Typography>
-                      </Box>
-                    </Stack>
-
-                    <hr />
                     <Stack
                       direction="row"
                       justifyContent="space-between"
@@ -659,14 +614,14 @@ export const Dashboard = () => {
                           color="#18181B"
                           fontWeight={"700"}
                         >
-                          Ikota
+                          Rose Helen
                         </Typography>
                         <Typography
                           variant="body1"
                           color="GrayText"
                           fontSize={"13px"}
                         >
-                          State
+                          Customer
                         </Typography>
                       </Box>
                       <Box>
@@ -675,14 +630,77 @@ export const Dashboard = () => {
                           color="#18181B"
                           fontWeight={"700"}
                         >
-                          Shopping Mall
+                          Protest
                         </Typography>
                         <Typography
                           variant="body1"
                           color="GrayText"
                           fontSize={"13px"}
                         >
-                          LGA
+                          Subscription
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Card>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      paddingX: 1.5,
+                      paddingY: 1.5,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      marginBottom: 2,
+                    }}
+                  >
+                    <Box marginBottom={1.5}>
+                      <Typography
+                        color="GrayText"
+                        fontSize={"13px"}
+                        textAlign="right"
+                      >
+                        3 hours ago
+                      </Typography>
+                    </Box>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Rose Helen
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          Customer
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Protest
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          Subscription
                         </Typography>
                       </Box>
                     </Stack>
@@ -704,9 +722,17 @@ export const Dashboard = () => {
                 marginBottom: 2,
               }}
             >
-              <Stack>
-                <Typography>Recent Incidents</Typography>
-              </Stack>
+              <CustomBox>
+                <img
+                  src={"../../../public/map-img.png"}
+                  alt={"map image"}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </CustomBox>
             </Card>
           </Stack>
         </Box>
