@@ -7,15 +7,31 @@ export * from "./create-incident";
 export * from "./incident-types";
 export * from "./incident-view";
 export * from "./users";
+export * from "./create-ticket";
 
-import { Box, Card, Stack, Typography, useTheme, Link } from "@mui/material";
-
+import {
+  Box,
+  Card,
+  Stack,
+  Typography,
+  useTheme,
+  Link,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import React from "react";
 import { AdminLayout } from "../../components";
 import { AccessTime, BarChart } from "@mui/icons-material";
 import Grid from "@mui/material/Grid";
+import { TabContext, TabPanel } from "@mui/lab";
 
 export const Dashboard = () => {
   const theme = useTheme();
+  const [value, setValue] = React.useState("1");
+
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
   return (
     <AdminLayout>
       <Box
@@ -25,7 +41,7 @@ export const Dashboard = () => {
         <Box>
           <Typography>Dashboard</Typography>
         </Box>
-{/* Numbers */}
+        {/* Numbers */}
         <Box>
           <Grid
             container
@@ -258,299 +274,421 @@ export const Dashboard = () => {
                 justifyContent: "space-between",
               }}
             >
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                spacing={2}
-                sx={{
-                  marginBottom: 3
-                }}
-              >
-                <Typography fontWeight={700} variant="h4" fontSize={18}>Recent Incidents</Typography>
-                <Link href="/home/incidents">See All Incidents</Link>
-              </Stack>
-
-                <Card
-                  variant="outlined"
-                  sx={{
-                    width: "100%",
-                    height: "100%",
-                    paddingX: 1.5,
-                    paddingY: 1.5,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    marginBottom: 2
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="start"
-                    spacing={2}
-                  >
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        fontWeight={"700"}
-                        fontSize={"17px"}
-                        color="#18181B"
-                      >
-                        Protest
-                      </Typography>
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "7px",
-                        }}
-                      >
-                        <AccessTime
-                          sx={{
-                            color: "GrayText",
-                            fontSize: "16px",
-                          }}
-                        />
-                        <Typography color="GrayText" fontSize={"13px"}>
-                          3 hours ago
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box>
-                      <Typography fontSize={13}>Ongoing</Typography>
-                    </Box>
-                  </Stack>
-
-                  <hr />
+              <TabContext value={value}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <Tabs onChange={handleChange} aria-label="basic tabs example">
+                    <Tab label="Incidents" value="1" />
+                    <Tab label="Invoices" value="2" />
+                  </Tabs>
+                </Box>
+                {/* Incidents Tab */}
+                <TabPanel value="1">
                   <Stack
                     direction="row"
                     justifyContent="space-between"
                     alignItems="center"
                     spacing={2}
+                    sx={{
+                      marginBottom: 3,
+                    }}
                   >
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        color="#18181B"
-                        fontWeight={"700"}
-                      >
-                        Ikota
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color="GrayText"
-                        fontSize={"13px"}
-                      >
-                        Location
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        color="#18181B"
-                        fontWeight={"700"}
-                      >
-                        Shopping Mall
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color="GrayText"
-                        fontSize={"13px"}
-                      >
-                        Site Name
-                      </Typography>
-                    </Box>
+                    <Typography fontWeight={700} variant="h4" fontSize={18}>
+                      Recent Incidents
+                    </Typography>
+                    <Link href="/home/incidents">See All Incidents</Link>
                   </Stack>
-                </Card>
-
-                <Card
-                  variant="outlined"
-                  sx={{
-                    width: "100%",
-                    height: "100%",
-                    paddingX: 1.5,
-                    paddingY: 1.5,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    marginBottom: 2
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="start"
-                    spacing={2}
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      paddingX: 1.5,
+                      paddingY: 1.5,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      marginBottom: 2,
+                    }}
                   >
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        fontWeight={"700"}
-                        fontSize={"17px"}
-                        color="#18181B"
-                      >
-                        Protest
-                      </Typography>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="start"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight={"700"}
+                          fontSize={"17px"}
+                          color="#18181B"
+                        >
+                          Protest
+                        </Typography>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "7px",
-                        }}
-                      >
-                        <AccessTime
+                        <Box
                           sx={{
-                            color: "GrayText",
-                            fontSize: "16px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "7px",
                           }}
-                        />
-                        <Typography color="GrayText" fontSize={"13px"}>
-                          3 hours ago
+                        >
+                          <AccessTime
+                            sx={{
+                              color: "GrayText",
+                              fontSize: "16px",
+                            }}
+                          />
+                          <Typography color="GrayText" fontSize={"13px"}>
+                            3 hours ago
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography fontSize={13}>Ongoing</Typography>
+                      </Box>
+                    </Stack>
+
+                    <hr />
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Ikota
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          State
                         </Typography>
                       </Box>
-                    </Box>
-                    <Box>
-                      <Typography fontSize={13}>Ongoing</Typography>
-                    </Box>
-                  </Stack>
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Shopping Mall
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          LGA
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Card>
 
-                  <hr />
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      paddingX: 1.5,
+                      paddingY: 1.5,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      marginBottom: 2,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="start"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight={"700"}
+                          fontSize={"17px"}
+                          color="#18181B"
+                        >
+                          Protest
+                        </Typography>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "7px",
+                          }}
+                        >
+                          <AccessTime
+                            sx={{
+                              color: "GrayText",
+                              fontSize: "16px",
+                            }}
+                          />
+                          <Typography color="GrayText" fontSize={"13px"}>
+                            3 hours ago
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography fontSize={13}>Ongoing</Typography>
+                      </Box>
+                    </Stack>
+
+                    <hr />
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Ikota
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          State
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Shopping Mall
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          LGA
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Card>
+                </TabPanel>
+                <TabPanel value="2">
                   <Stack
                     direction="row"
                     justifyContent="space-between"
                     alignItems="center"
                     spacing={2}
+                    sx={{
+                      marginBottom: 3,
+                    }}
                   >
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        color="#18181B"
-                        fontWeight={"700"}
-                      >
-                        Ikota
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color="GrayText"
-                        fontSize={"13px"}
-                      >
-                        Location
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        color="#18181B"
-                        fontWeight={"700"}
-                      >
-                        Shopping Mall
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color="GrayText"
-                        fontSize={"13px"}
-                      >
-                        Site Name
-                      </Typography>
-                    </Box>
+                    <Typography fontWeight={700} variant="h4" fontSize={18}>
+                      Recent Invoices
+                    </Typography>
+                    <Link href="/home/subscriptions">See All Invoices</Link>
                   </Stack>
-                </Card>
-
-                <Card
-                  variant="outlined"
-                  sx={{
-                    width: "100%",
-                    height: "100%",
-                    paddingX: 1.5,
-                    paddingY: 1.5,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="start"
-                    spacing={2}
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      paddingX: 1.5,
+                      paddingY: 1.5,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      marginBottom: 2,
+                    }}
                   >
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        fontWeight={"700"}
-                        fontSize={"17px"}
-                        color="#18181B"
-                      >
-                        Protest
-                      </Typography>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="start"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight={"700"}
+                          fontSize={"17px"}
+                          color="#18181B"
+                        >
+                          Protest
+                        </Typography>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "7px",
-                        }}
-                      >
-                        <AccessTime
+                        <Box
                           sx={{
-                            color: "GrayText",
-                            fontSize: "16px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "7px",
                           }}
-                        />
-                        <Typography color="GrayText" fontSize={"13px"}>
-                          3 hours ago
+                        >
+                          <AccessTime
+                            sx={{
+                              color: "GrayText",
+                              fontSize: "16px",
+                            }}
+                          />
+                          <Typography color="GrayText" fontSize={"13px"}>
+                            3 hours ago
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography fontSize={13}>Ongoing</Typography>
+                      </Box>
+                    </Stack>
+
+                    <hr />
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Ikota
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          State
                         </Typography>
                       </Box>
-                    </Box>
-                    <Box>
-                      <Typography fontSize={13}>Ongoing</Typography>
-                    </Box>
-                  </Stack>
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Shopping Mall
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          LGA
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Card>
 
-                  <hr />
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    spacing={2}
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      paddingX: 1.5,
+                      paddingY: 1.5,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      marginBottom: 2,
+                    }}
                   >
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        color="#18181B"
-                        fontWeight={"700"}
-                      >
-                        Ikota
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color="GrayText"
-                        fontSize={"13px"}
-                      >
-                        Location
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        color="#18181B"
-                        fontWeight={"700"}
-                      >
-                        Shopping Mall
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color="GrayText"
-                        fontSize={"13px"}
-                      >
-                        Site Name
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Card>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="start"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight={"700"}
+                          fontSize={"17px"}
+                          color="#18181B"
+                        >
+                          Protest
+                        </Typography>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "7px",
+                          }}
+                        >
+                          <AccessTime
+                            sx={{
+                              color: "GrayText",
+                              fontSize: "16px",
+                            }}
+                          />
+                          <Typography color="GrayText" fontSize={"13px"}>
+                            3 hours ago
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography fontSize={13}>Ongoing</Typography>
+                      </Box>
+                    </Stack>
+
+                    <hr />
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Ikota
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          State
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          color="#18181B"
+                          fontWeight={"700"}
+                        >
+                          Shopping Mall
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="GrayText"
+                          fontSize={"13px"}
+                        >
+                          LGA
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Card>
+                </TabPanel>
+              </TabContext>
             </Card>
 
             <Card
@@ -563,8 +701,7 @@ export const Dashboard = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                marginBottom: 2
-
+                marginBottom: 2,
               }}
             >
               <Stack>

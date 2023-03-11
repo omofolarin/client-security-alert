@@ -16,6 +16,7 @@ import {
   Tickets,
   Users,
   ViewIncident,
+  CreateTicket,
 } from "./pages";
 
 import { createBrowserRouter } from "react-router-dom";
@@ -100,6 +101,10 @@ export const router = createBrowserRouter(
     {
       path: "/home/users",
       element: <Users />,
+    },
+    {
+      path: "/home/create-ticket",
+      element: <CreateTicket />,
     },
   ],
   {}
