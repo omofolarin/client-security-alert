@@ -181,11 +181,11 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
             icon: <EmojiFlagsOutlined fontSize="small" />,
           },
 
-          {
-            title: "Tickets",
-            url: "tickets",
-            icon: <SupportOutlined fontSize="small" />,
-          },
+          // {
+          //   title: "Tickets",
+          //   url: "tickets",
+          //   icon: <SupportOutlined fontSize="small" />,
+          // },
           {
             title: "Settings",
             url: "settings",
@@ -203,7 +203,7 @@ export const PrimarySideBar = (props: PrimarySideBarProps) => {
           },
           {
             title: "Help",
-            url: "create-ticket",
+            url: "tickets",
             icon: <SupportOutlined fontSize="small" />,
           },
         ].map((item, index = 0) => {
