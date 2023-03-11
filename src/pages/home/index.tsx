@@ -724,7 +724,7 @@ export const Dashboard = () => {
             >
               <CustomBox>
                 <img
-                  src={"../../../public/map-img.svg"}
+                  src={"../../../public/map-img.png"}
                   alt={"map image"}
                   style={{
                     maxWidth: "100%",
