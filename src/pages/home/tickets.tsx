@@ -12,14 +12,29 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  Link,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import { useFetchTicketsQuery } from "../../api";
+import * as moment from "moment";
 interface SupportTicket {
   id: number;
   subject: string;
   status: string;
   createdAt: string;
   message: string;
+}
+
+interface TicketsProps {
+  assignee: string;
+  closed: boolean;
+  created_at: string;
+  id: number;
+  message: string;
+  owner: string;
+  read: boolean;
+  title: string;
+  updated_at: string;
 }
 
 const tickets: SupportTicket[] = [
@@ -64,8 +79,13 @@ interface SupportTicketTableProps {
   tickets: SupportTicket[];
 }
 
+const FormatDate = (date: string) => {
+  let dateSupplied = new Date(date);
+  return dateSupplied.toLocaleString();
+};
 export const Tickets = () => {
   const OutlinePaper = (props: any) => <Paper {...props} variant="outlined" />;
+  const { data: fetchTickets, ...results } = useFetchTicketsQuery("tickets");
 
   const rowsPerPageOptions = [10, 25, 50];
   const [page, setPage] = useState(0);
@@ -74,6 +94,7 @@ export const Tickets = () => {
     null
   );
   const [openModal, setOpenModal] = useState(false);
+  const [ticketsData, setTicketsData] = useState<TicketsProps | null>(null);
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -88,16 +109,15 @@ export const Tickets = () => {
   const startIndex = page * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const displayedTickets = tickets.slice(startIndex, endIndex);
-  // const {
-  //   watch,
-  //   setValue,
-  //   register,
-  //   handleSubmit,
-  //   formState: { errors },
-  // } = useForm<FilterForm>({
-  //   mode: "onChange",
-  //   // resolver: yupResolver(formSchema),
-  // });
+
+  React.useEffect(() => {
+    if (results && results.isSuccess) {
+      const { data } = results.currentData;
+      console.log({ data });
+      setTicketsData(data);
+    }
+  }, [results.isSuccess]);
+
   return (
     <AdminLayout>
       <Box sx={{ bgcolor: "rgb(250, 250, 251)", minHeight: "100vh" }}>
@@ -117,6 +137,15 @@ export const Tickets = () => {
             }}
           >
             <Typography variant="subtitle1">Tickets</Typography>
+            <Link href="create-ticket">
+              <Button
+                variant="contained"
+                disableElevation
+                sx={{ textTransform: "capitalize" }}
+              >
+                Create a New Ticket
+              </Button>
+            </Link>
           </Box>
           <form>
             <Stack
@@ -166,28 +195,27 @@ export const Tickets = () => {
                   <TableCell align="center">Message</TableCell>
                   <TableCell align="center">Status</TableCell>
                   <TableCell align="center">Created At</TableCell>
-                  <TableCell align="center">Assign</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tickets.map((ticket) => (
+                {ticketsData?.map((ticket) => (
                   <TableRow key={ticket.id}>
                     <TableCell align="center">{ticket.id}</TableCell>
-                    <TableCell align="center">{ticket.subject}</TableCell>
+                    <TableCell align="center">{ticket.title}</TableCell>
                     <TableCell align="center">{ticket.message}</TableCell>
                     <TableCell
                       align="center"
                       sx={{
-                        color: `${
-                          ticket.status.toLowerCase() === "open"
-                            ? " #22C55E"
-                            : "#E85050"
-                        }`,
+                        color: `${ticket.close ? "#E85050" : "#22C55E"}`,
                       }}
                     >
-                      {ticket.status}
+                      {ticket.close ? "Closed" : "Open"}
                     </TableCell>
-                    <TableCell align="center">{ticket.createdAt}</TableCell>
+                    <TableCell align="center">
+                      {ticket.created_at && FormatDate(ticket.created_at)}
+                      {/* {ticket.created_at} */}
+                    </TableCell>
                     <TableCell align="center">
                       <Box
                         // onClick={() => handleRowClick(ticket)}
